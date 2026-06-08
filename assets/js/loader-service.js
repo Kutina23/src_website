@@ -1,58 +1,70 @@
-class LoaderService {
-    constructor() {
-        this.overlay = null;
-        this.init();
+// Loader Service - prevents multiple declarations
+const LoaderService = (function() {
+    if (typeof window.LoaderService !== 'undefined') {
+        return window.LoaderService;
     }
 
-    init() {
-        this.overlay = document.createElement('div');
-        this.overlay.id = 'global-loader-overlay';
-        this.overlay.className = 'spinner-overlay';
-        this.overlay.innerHTML = '<div class="spinner"><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div></div>';
-        document.body.appendChild(this.overlay);
-    }
+    class LoaderServiceClass {
+        constructor() {
+            this.overlay = null;
+            this.init();
+        }
 
-    show() {
-        if (this.overlay) {
-            this.overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
+        init() {
+            this.overlay = document.createElement('div');
+            this.overlay.id = 'global-loader-overlay';
+            this.overlay.className = 'spinner-overlay';
+            this.overlay.innerHTML = '<div class="spinner"><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div><div class="spinner-blade"></div></div>';
+            document.body.appendChild(this.overlay);
+        }
+
+        show() {
+            if (this.overlay) {
+                this.overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        hide() {
+            if (this.overlay) {
+                this.overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        toggle() {
+            if (this.overlay.classList.contains('active')) {
+                this.hide();
+            } else {
+                this.show();
+            }
         }
     }
 
-    hide() {
-        if (this.overlay) {
-            this.overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
+    return LoaderServiceClass;
+})();
 
-    toggle() {
-        if (this.overlay.classList.contains('active')) {
-            this.hide();
-        } else {
-            this.show();
-        }
-    }
+// Create singleton instance only once
+if (!window.Loader) {
+    window.Loader = new LoaderService();
 }
 
-const Loader = new LoaderService();
-
 function showLoader() {
-    Loader.show();
+    window.Loader.show();
 }
 
 function hideLoader() {
-    Loader.hide();
+    window.Loader.hide();
 }
 
 function toggleLoader() {
-    Loader.toggle();
+    window.Loader.toggle();
 }
 
 function withLoader(promise, options = {}) {
     const { showOverlay = true, button = null } = options;
     
-    if (showOverlay) Loader.show();
+    if (showOverlay) window.Loader.show();
     if (button) {
         button.classList.add('btn-loading');
         const originalContent = button.innerHTML;
@@ -65,7 +77,7 @@ function withLoader(promise, options = {}) {
                 button.classList.remove('btn-loading');
                 button.innerHTML = button.getAttribute('data-original-content');
             }
-            if (showOverlay) Loader.hide();
+            if (showOverlay) window.Loader.hide();
             return result;
         })
         .catch(error => {
@@ -73,7 +85,7 @@ function withLoader(promise, options = {}) {
                 button.classList.remove('btn-loading');
                 button.innerHTML = button.getAttribute('data-original-content');
             }
-            if (showOverlay) Loader.hide();
+            if (showOverlay) window.Loader.hide();
             throw error;
         });
 }
@@ -93,15 +105,15 @@ document.addEventListener('DOMContentLoaded', function() {
     links.forEach(link => {
         link.addEventListener('click', function(e) {
             if (link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
-                Loader.show();
-                setTimeout(() => Loader.hide(), 5000);
+                window.Loader.show();
+                setTimeout(() => window.Loader.hide(), 5000);
             }
         });
     });
 
     window.addEventListener('beforeunload', function() {
-        Loader.show();
+        window.Loader.show();
     });
     
-    setTimeout(() => Loader.hide(), 5000);
+    setTimeout(() => window.Loader.hide(), 5000);
 });

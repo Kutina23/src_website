@@ -178,8 +178,8 @@ $_SESSION["csrf_token"] = $csrfToken;
     </div>
 </div>
 
-<div id="serviceModal" class="modal">
-    <div class="modal-content">
+<div id="serviceModal" class="modal-overlay">
+    <div class="modal-content gold-theme">
         <div class="modal-header">
             <h3 class="modal-title" id="modalTitle">Add New Service</h3>
             <button type="button" class="modal-close" onclick="closeServiceModal()"><i class="bi bi-x-lg"></i></button>
@@ -229,9 +229,10 @@ $_SESSION["csrf_token"] = $csrfToken;
 </div>
 
 <script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/loader-service.js"></script>
 <script>
-    function openServiceModal() { document.getElementById('serviceModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
-    function closeServiceModal() { document.getElementById('serviceModal').classList.remove('active'); document.body.style.overflow = ''; }
+    function openServiceModal() { document.getElementById('serviceModal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeServiceModal() { document.getElementById('serviceModal').classList.remove('open'); document.body.style.overflow = ''; }
     function filterServices() { var q = document.getElementById('svcSearch').value.toLowerCase(); document.querySelectorAll('#svcTable tbody tr').forEach(function(r){ r.style.display = r.dataset.keyword.indexOf(q) !== -1 ? '' : 'none'; }); }
     function editService(id) {
         <?php foreach ($services as $s): ?>
@@ -252,7 +253,5 @@ $_SESSION["csrf_token"] = $csrfToken;
     document.getElementById('serviceModal').addEventListener('click', function(e){ if (e.target === this) closeServiceModal(); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeServiceModal(); });
 </script>
-<script src="../assets/js/sidebar.js"></script>
-    <script src="../assets/js/loader-service.js"></script>
 </body>
 </html>

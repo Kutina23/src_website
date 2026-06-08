@@ -82,7 +82,7 @@ $downloads = $downloadsModel->getAllActive();
   <script>window.currentUserRole = "<?php echo $currentRole; ?>";</script>
   <style>
     .modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,22,40,0.85);z-index:1000;align-items:center;justify-content:center; }
-    .modal-overlay.active { display:flex; }
+    .modal-overlay.open { display:flex; }
     .modal-wrap { background:#fff;border:1px solid rgba(201,168,76,0.25);border-radius:12px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto; }
     .modal-header-custom { padding:24px;border-bottom:1px solid rgba(201,168,76,0.12);display:flex;justify-content:space-between;align-items:center; }
     .modal-header-custom h3 { margin:0;color:#0A1628; }
@@ -91,10 +91,10 @@ $downloads = $downloadsModel->getAllActive();
     .modal-form-wrap { padding:24px; }
     .modal-actions { display:flex;gap:12px;justify-content:flex-end;margin-top:20px; }
     .modal-hint { font-size:11px;color:#8A9BB8;margin-top:4px; }
-    .section-header { margin-bottom: 24px; }
-    .section-title { font-size: 18px; font-weight: 600; color: var(--cream); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
-    .download-icon { font-size: 32px; color: var(--gold); margin-bottom: 12px; }
+    .section-header { margin-bottom:24px; }
+    .section-title { font-size:18px;font-weight:600;color:#C9A84C;margin-bottom:16px;display:flex;align-items:center;gap:8px; }
+    .empty-state { text-align:center;padding:40px;color:#8A9BB8; }
+    .download-icon { font-size:32px;color:#C9A84C;margin-bottom:12px; }
   </style>
 </head>
 <body>
@@ -243,15 +243,16 @@ $downloads = $downloadsModel->getAllActive();
 </div>
 
   <script>
-function openModal()   { var el = document.getElementById("downloadModal");   el.style.display="flex"; document.body.style.overflow = "hidden"; }
-function closeModal()  { document.getElementById("downloadModal").style.display  = "none"; document.body.style.overflow = ""; }
-function openCategoryModal()  { document.getElementById("categoryModal").style.display  = "flex"; document.body.style.overflow = "hidden"; }
-function closeCategoryModal() { document.getElementById("categoryModal").style.display = "none"; }
+function openModal()   { var el = document.getElementById("downloadModal");   el.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeModal()  { var el = document.getElementById("downloadModal");   el.classList.remove("open"); document.body.style.overflow = ""; }
+function openCategoryModal()  { var el = document.getElementById("categoryModal");   el.classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeCategoryModal() { var el = document.getElementById("categoryModal");   el.classList.remove("open"); document.body.style.overflow = ""; }
 
 document.getElementById("downloadModal").addEventListener("click", function(e) { if (e.target === this) closeModal(); });
 document.getElementById("categoryModal").addEventListener("click", function(e) { if (e.target === this) closeCategoryModal(); });
 document.addEventListener("keydown", function(e) { if (e.key === "Escape") { closeModal(); closeCategoryModal(); } });
 </script>
 <script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/loader-service.js"></script>
 </body>
 </html>

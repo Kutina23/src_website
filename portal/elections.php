@@ -550,6 +550,60 @@ function badgeIcon(string $status): string {
   </div>
 
 <script src="../assets/js/sidebar.js"></script>
-     <script src="../assets/js/loader-service.js"></script>
- </body>
+  <script src="../assets/js/loader-service.js"></script>
+  <script>
+    function openCreateModal() {
+      document.getElementById('modalTitle').textContent = 'New Election';
+      document.getElementById('formAction').value = 'create';
+      document.getElementById('formId').value = '';
+      document.getElementById('electionForm').reset();
+      document.getElementById('electionModal').classList.add('open');
+    }
+
+    function openEditModal(id) {
+      fetch('api/elections-get.php?id=' + id)
+        .then(response => response.json())
+        .then(data => {
+          if (data) {
+            document.getElementById('modalTitle').textContent = 'Edit Election';
+            document.getElementById('formAction').value = 'edit';
+            document.getElementById('formId').value = data.id;
+            document.getElementById('title').value = data.title || '';
+            document.getElementById('description').value = data.description || '';
+            document.getElementById('position').value = data.position || '';
+            document.getElementById('election_date').value = data.election_date || '';
+            document.getElementById('start_time').value = data.start_time || '';
+            document.getElementById('end_time').value = data.end_time || '';
+            document.getElementById('location').value = data.location || '';
+            document.getElementById('status').value = data.status || 'UPCOMING';
+            document.getElementById('electionModal').classList.add('open');
+          }
+        })
+        .catch(error => console.error('Error loading election:', error));
+    }
+
+    function closeModal() {
+      document.getElementById('electionModal').classList.remove('open');
+    }
+
+    function filterGo() {
+      const params = new URLSearchParams({
+        search: document.getElementById('searchInput').value,
+        status: document.getElementById('statusFilter').value,
+        position: document.getElementById('posFilter').value,
+        include_inactive: document.getElementById('includeInactive').checked ? 1 : ''
+      });
+      window.location.search = params.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('electionModal');
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) closeModal();
+        });
+      }
+    });
+  </script>
+</body>
 </html>
