@@ -1,0 +1,180 @@
+.alert-item {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.alert-item:hover {
+    transform: translateX(-4px);
+}
+
+#alert-container {
+    pointer-events: none;
+}
+
+#alert-container > * {
+    pointer-events: auto;
+}
+
+.alert-enter {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.alert-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.alert-exit {
+    opacity: 1;
+}
+
+.alert-exit-active {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+/* Dashboard Alert Toasts */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(201, 168, 76, 0.15);
+    border-radius: 8px;
+    padding: 16px 20px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: toastSlideIn 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toast-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-icon.success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--dashboard-success, #22c55e);
+}
+
+.toast-icon.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--dashboard-danger, #ef4444);
+}
+
+.toast-icon.warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--dashboard-warning, #f59e0b);
+}
+
+.toast-icon.info {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--dashboard-info, #3b82f6);
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 14px;
+    color: var(--dashboard-text, #F5F0E8);
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: var(--dashboard-text-muted, #8A9BB8);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    color: var(--dashboard-text, #F5F0E8);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Spinner for dashboard theme */
+.spinner {
+    font-size: 28px;
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+}
+
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.spinner-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.spinner .spinner-blade {
+    position: absolute;
+    left: 0.4629em;
+    bottom: 0;
+    width: 0.074em;
+    height: 0.2777em;
+    border-radius: 0.0555em;
+    background-color: transparent;
+    transform-origin: center -0.2222em;
+    animation: spinner-fade 1s infinite linear;
+}
+
+.spinner .spinner-blade:nth-child(1) { transform: rotate(0deg); animation-delay: 0s; }
+.spinner .spinner-blade:nth-child(2) { transform: rotate(30deg); animation-delay: 0.083s; }
+.spinner .spinner-blade:nth-child(3) { transform: rotate(60deg); animation-delay: 0.166s; }
+.spinner .spinner-blade:nth-child(4) { transform: rotate(90deg); animation-delay: 0.249s; }
+.spinner .spinner-blade:nth-child(5) { transform: rotate(120deg); animation-delay: 0.332s; }
+.spinner .spinner-blade:nth-child(6) { transform: rotate(150deg); animation-delay: 0.415s; }
+.spinner .spinner-blade:nth-child(7) { transform: rotate(180deg); animation-delay: 0.498s; }
+.spinner .spinner-blade:nth-child(8) { transform: rotate(210deg); animation-delay: 0.581s; }
+.spinner .spinner-blade:nth-child(9) { transform: rotate(240deg); animation-delay: 0.664s; }
+.spinner .spinner-blade:nth-child(10) { transform: rotate(270deg); animation-delay: 0.747s; }
+.spinner .spinner-blade:nth-child(11) { transform: rotate(300deg); animation-delay: 0.83s; }
+.spinner .spinner-blade:nth-child(12) { transform: rotate(330deg); animation-delay: 0.913s; }
+
+@keyframes spinner-fade {
+    0% { background-color: #C9A84C; }
+    100% { background-color: transparent; }
+}

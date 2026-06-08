@@ -1,0 +1,35 @@
+# Environment and configuration
+.env
+.env.local
+.env.*.local
+
+# Database
+*.sql
+database/*.sql
+
+# PHP
+*.log
+*.cache
+*.cache.php
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Uploads and media
+uploads/
+assets/uploads/
+
+# Session files
+sessions/
+
+# Node modules (if any)
+node_modules/
+
+# Composer (if any)
+vendor/
+composer.lock
