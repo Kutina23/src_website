@@ -13,6 +13,13 @@
           </div>
         </div>
         <p class="footer-tagline">Championing student rights, fostering excellence, and building a vibrant campus community since 1992. Knowledge. Service. Excellence.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/share/g/1DubEJRJmS/?mibextid=wwXIfr" class="footer-social-link" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://twitter.com" class="footer-social-link" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+          <a href="https://www.tiktok.com/@dhltusrcmedia?_r=1&_t=ZS-974G0FrbN5w" class="footer-social-link" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+          <a href="https://instagram.com" class="footer-social-link" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://linkedin.com" class="footer-social-link" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        </div>
       </div>
 
       <div class="footer-links-section">
@@ -45,12 +52,6 @@
           <button type="submit" class="footer-subscribe-btn">Subscribe</button>
         </form>
         <div id="subscribe-result" class="footer-result" style="display: none;"></div>
-        <div class="footer-socials">
-          <a href="https://facebook.com" class="footer-social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://twitter.com" class="footer-social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="https://instagram.com" class="footer-social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="https://linkedin.com" class="footer-social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        </div>
       </div>
     </div>
 

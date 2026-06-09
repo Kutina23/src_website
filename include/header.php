@@ -8,11 +8,11 @@
       <img src="assets/images/logo.png" alt="SRC Logo" style="height:100%;object-fit:contain;">
     </div>
     <div class="top-bar-text">
-      <div class="top-bar-school">Dr. Hilla Limann Technical University</div>
+      <div class="top-bar-school">STUDENT REPRESENTATIVE COUNCIL</div>
       <div class="top-bar-sub">Wa, Upper West Region · Ghana</div>
     </div>
     <div class="top-bar-divider"></div>
-    <div class="top-bar-src">Student Representative Council</div>
+    <div class="top-bar-src">Dr. Hilla Limann Technical University</div>
     <div class="top-bar-right">
       <span class="top-bar-tag">Session</span>
       <span class="top-bar-date"><?php echo date('Y') . ' / ' . (date('Y') + 1); ?></span>

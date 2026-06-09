@@ -7,6 +7,7 @@ require_once 'include/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Map - Dr. Hilla Limann Technical University</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <style>
         /* Map-specific overrides */

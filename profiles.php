@@ -38,6 +38,7 @@ $executives = $db->fetchAll($sql, [$selectedYear, $selectedYear]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Profiles | SRC DHLTU</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <style>

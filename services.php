@@ -65,7 +65,7 @@ $allServices = $servicesModel->getAllActive(['order_by' => 'display_order ASC, c
           <div class="service-icon-wrap"><i class="bi <?php echo htmlspecialchars($svc['icon'] ?: 'bi-star'); ?>"></i></div>
           <div class="service-title"><?php echo htmlspecialchars($svc['title']); ?></div>
           <div class="service-desc"><?php echo htmlspecialchars($svc['description'] ?: ''); ?></div>
-          <a href="services.php" class="service-link">Explore Service</a>
+          <a href="service-detail.php?id=<?php echo $svc['id']; ?>" class="service-link">Explore Service</a>
         </div>
         <?php endforeach; ?>
       <?php endif; ?>
