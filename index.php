@@ -320,60 +320,17 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     <h2 class="section-title reveal">Core <em>Services</em><br>&amp; Functions</h2>
   </div>
   <div class="services-grid">
+    <?php foreach ($allServices as $index => $svc): ?>
+    <div class="service-card reveal delay-<?php echo ($index % 3) + 1; ?>">
+      <div class="service-num"><?php echo sprintf('%02d', $index + 1); ?></div>
+      <div class="service-icon-wrap"><i class="bi <?php echo htmlspecialchars($svc['icon'] ?: 'bi-star'); ?>"></i></div>
+      <div class="service-title"><?php echo htmlspecialchars($svc['title']); ?></div>
+      <div class="service-desc"><?php echo htmlspecialchars($svc['description'] ?: ''); ?></div>
+      <a href="services.php" class="service-link">Explore</a>
+    </div>
+    <?php endforeach; ?>
     <?php if (empty($allServices)): ?>
-      <?php /* fallback hardcoded cards if DB is empty */ ?>
-      <div class="service-card reveal delay-1">
-        <div class="service-num">01</div>
-        <div class="service-icon-wrap"><i class="bi bi-mortarboard"></i></div>
-        <div class="service-title">Academic Affairs</div>
-        <div class="service-desc">Student advocacy in academic policy, exam concerns, faculty relations, and curriculum development forums.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-      <div class="service-card reveal delay-2">
-        <div class="service-num">02</div>
-        <div class="service-icon-wrap"><i class="bi bi-currency-dollar"></i></div>
-        <div class="service-title">Financial Management</div>
-        <div class="service-desc">Transparent management of SRC dues, budgets, and student financial aid disbursement with full audit trails.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-      <div class="service-card reveal delay-3">
-        <div class="service-num">03</div>
-        <div class="service-icon-wrap"><i class="bi bi-box-arrow-in-right"></i></div>
-        <div class="service-title">Elections &amp; Voting</div>
-        <div class="service-desc">Free, fair, and transparent digital elections for all SRC executive and hall representative positions annually.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-      <div class="service-card reveal delay-1">
-        <div class="service-num">04</div>
-        <div class="service-icon-wrap"><i class="bi bi-heart-pulse"></i></div>
-        <div class="service-title">Student Welfare</div>
-        <div class="service-desc">Health support, mental wellness counselling, emergency aid, and advocacy for improved campus living conditions.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-      <div class="service-card reveal delay-2">
-        <div class="service-num">05</div>
-        <div class="service-icon-wrap"><i class="bi bi-palette"></i></div>
-        <div class="service-title">Clubs &amp; Societies</div>
-        <div class="service-desc">Registration, funding, and coordination of all student clubs, societies, and cultural associations on campus.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-      <div class="service-card reveal delay-3">
-        <div class="service-num">06</div>
-        <div class="service-icon-wrap"><i class="bi bi-broadcast"></i></div>
-        <div class="service-title">Communication Hub</div>
-        <div class="service-desc">Official announcements, newsletter publishing, press briefings, and multi-channel student information dissemination.</div>
-        <a href="#" class="service-link">Explore</a>
-      </div>
-    <?php else: ?>
-      <?php foreach ($allServices as $index => $svc): ?>
-      <div class="service-card reveal delay-<?php echo ($index % 3) + 1; ?>">
-        <div class="service-num"><?php echo sprintf('%02d', $index + 1); ?></div>
-        <div class="service-icon-wrap"><i class="bi <?php echo htmlspecialchars($svc['icon'] ?: 'bi-star'); ?>"></i></div>
-        <div class="service-title"><?php echo htmlspecialchars($svc['title']); ?></div>
-        <div class="service-desc"><?php echo htmlspecialchars($svc['description'] ?: ''); ?></div>
-        <a href="services.php" class="service-link">Explore</a>
-      </div>
-      <?php endforeach; ?>
+    <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">No services available</div>
     <?php endif; ?>
   </div>
 </section>
@@ -462,11 +419,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     <div class="news-featured reveal-left delay-1" onclick="location.href='news-detail.php?id=<?= $featuredNews ? $featuredNews['id'] : '' ?>'" style="cursor:pointer;">
       <div class="news-featured-bg" style="<?php if ($featuredNews && !empty($featuredNews['featured_image'])): ?>background: url('<?= htmlspecialchars($featuredNews['featured_image']) ?>') center/cover no-repeat, radial-gradient(ellipse at 70% 20%, rgba(201,168,76,0.1), transparent 60%), linear-gradient(to bottom, transparent 20%, rgba(10,22,40,0.85) 40%, rgba(10,22,40,0.95));<?php endif; ?>"></div>
       <div class="news-featured-tag">Featured</div>
-      <div class="news-featured-content">
-        <div class="news-date"><?php echo $featuredNews ? date('M d, Y', strtotime($featuredNews['published_at'])) : 'May 08, 2025'; ?></div>
-        <div class="news-title"><?php echo $featuredNews ? htmlspecialchars($featuredNews['title']) : '2025 SRC Elections: Nominations Now Open for All Positions'; ?></div>
-        <p class="news-excerpt"><?php echo $featuredNews ? htmlspecialchars($featuredNews['excerpt']) : 'Students are invited to submit nomination forms for all executive and representative positions. The electoral commission urges all eligible students to participate in shaping their SRC leadership.'; ?></p>
-      </div>
+      
     </div>
     <div class="news-list reveal-right delay-2">
       <?php foreach ($latestNews as $news): 
@@ -843,9 +796,8 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   <div class="reveal-right delay-3">
     <div class="welfare-hotline">
       <div class="hotline-label">SRC Welfare Hotline — Available 24/7</div>
-      <div class="hotline-num"><?php echo $contactSettings['welfare_hotline']; ?></div>
       <div class="hotline-desc">Reach our welfare desk officers directly for urgent student support needs and emergency assistance.</div>
-      <a href="#contact" class="btn-primary">Contact Welfare Desk</a>
+      <a href="#" class="btn-primary">Contact Welfare Desk</a>
     </div>
     <div style="margin-top:24px;padding:32px;border:1px solid rgba(201,168,76,0.1);background:rgba(201,168,76,0.02);">
       <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;">Welfare Cases This Semester</div>
