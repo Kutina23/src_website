@@ -221,46 +221,5 @@ $agmSessions = $gaModel->getByType('ANNUAL', 20);
 
 <?php include 'include/footer.php'; ?>
 
-<script>
-(function() {
-  var mobileToggle = document.querySelector('.mobile-toggle');
-  var navList      = document.querySelector('.nav-list');
-  if (!mobileToggle || !navList) return;
-  mobileToggle.addEventListener('click', function() {
-    mobileToggle.classList.toggle('active'); navList.classList.toggle('active');
-  });
-  document.addEventListener('click', function(e) {
-    if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-      mobileToggle.classList.remove('active'); navList.classList.remove('active');
-    }
-  });
-  document.querySelectorAll('.nav-link').forEach(function(link) {
-    link.addEventListener('click', function() {
-      mobileToggle.classList.remove('active'); navList.classList.remove('active');
-    });
-  });
-})();
 
-// ── Agenda PDF inline preview toggle ────────────────────
-function toggleAgendaPreview(url, btn) {
-  var box    = document.getElementById('agendaPreviewBox');
-  var iframe = document.getElementById('agendaIframe');
-  var lbl    = document.getElementById('agendaBtnLabel');
-  if (!box || !iframe) return;
-
-  if (box.style.display !== 'none') {
-    // close
-    box.style.display   = 'none';
-    iframe.src          = '';
-    lbl.textContent     = 'Agenda';
-    btn.innerHTML       = '<i class="bi bi-file-earmark-pdf"></i>\u00A0<span id="agendaBtnLabel">Agenda</span>';
-  } else {
-    // open
-    iframe.src          = url + '#toolbar=0&navpanes=0';
-    box.style.display   = 'block';
-    btn.innerHTML       = '<i class="bi bi-eye-slash"></i>\u00A0<span id="agendaBtnLabel">Hide Agenda</span>';
-    setTimeout(function() { box.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 150);
-  }
-}
-</script>
 </body></html>

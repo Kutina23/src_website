@@ -40,11 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_request'])) {
     $purpose       = trim($_POST['purpose']   ?? '');
     $remarks       = trim($_POST['remarks']   ?? '');
 
-    if ($postStudentId === '' || $postFullName === '' || $postEmail === '' || $docType === '' || $purpose === '') {
+if ($postStudentId === '' || $postFullName === '' || $postEmail === '' || $docType === '' || $purpose === '') {
         $error = 'Please fill in all required fields.';
     } else {
         $refNum = strtoupper('REQ-' . bin2hex(random_bytes(6)));
-        // Insert document request for all users (logged-in or guest)
+        // Insert document request for all users (logged-in or guest field entry)
         try {
             $insertData = [
                 'request_token' => $refNum,
@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_request'])) {
             $userName  = $postFullName;
             $userEmail = $postEmail;
         } catch (Exception $e) {
+            error_log('Document request submission failed: ' . $e->getMessage());
             $error = 'Submission failed. Please try again later.';
         }
     }
@@ -227,50 +228,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_request'])) {
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     JAVASCRIPT
+      JAVASCRIPT
 ══════════════════════════════════════════════════════ -->
 <script>
-  function copyToken() {
-    var token = document.getElementById('confirmToken').textContent;
-    navigator.clipboard.writeText(token).then(function() {
-      var btn  = document.getElementById('copyTokenBtn');
-      var orig = btn.innerHTML;
-      btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
-      setTimeout(function() { btn.innerHTML = orig; }, 2000);
+function copyToken() {
+    const token = document.getElementById('confirmToken').textContent;
+    navigator.clipboard.writeText(token).then(() => {
+        const btn = document.getElementById('copyTokenBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Copied! <i class="bi bi-check2"></i>';
+        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    }).catch(() => {
+        alert('Failed to copy. Please copy manually: ' + token);
     });
-  }
-
-  window.setStep = function(n) {
-    [1, 2, 3].forEach(function(i) {
-      var step = document.getElementById('step' + i + '-indicator');
-      var line = document.getElementById('line-' + i);
-      var cls  = 'form-step';
-      if (i < n)  cls += ' done';
-      if (i === n) cls += ' active';
-      step.className = cls;
-      if (line) line.className = 'form-step-line' + (i < n ? ' done' : '');
-    });
-  };
-
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
-    if (!mobileToggle || !navList) return;
-    mobileToggle.addEventListener('click', function() {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      });
-    });
-  })();
+}
 </script>
 
 <?php include __DIR__ . '/include/footer.php'; ?>

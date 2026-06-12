@@ -412,87 +412,12 @@ $active        = $electionsModel->getActiveElection();
 
 <!-- Scroll Reveal -->
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.reveal').forEach(function (el) {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(40px)';
-      el.style.transition = 'opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)';
-    });
-
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          var el = entry.target;
-          var delay = 0;
-          if (el.classList.contains('delay-1')) delay = 150;
-          else if (el.classList.contains('delay-2')) delay = 300;
-          else if (el.classList.contains('delay-3')) delay = 450;
-          else if (el.classList.contains('delay-4')) delay = 600;
-          else if (el.classList.contains('delay-5')) delay = 750;
-          else if (el.classList.contains('delay-6')) delay = 900;
-          setTimeout(function () {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-          }, delay);
-          observer.unobserve(el);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
-  });
- </script>
- <script>
-  // Mobile menu toggle (outside DOMContentLoaded for immediate execution)
-  var mobileToggle = document.querySelector('.mobile-toggle');
-  var navList = document.querySelector('.nav-list');
-  
-  if (mobileToggle && window.innerWidth <= 900) {
-    mobileToggle.style.display = 'flex';
-  }
-  
-  if (mobileToggle && navList) {
-    mobileToggle.addEventListener('click', function () {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-  }
-  
-  // Close mobile menu when clicking outside
-  document.addEventListener('click', function (e) {
-    if (mobileToggle && navList && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-      mobileToggle.classList.remove('active');
-      navList.classList.remove('active');
-    }
-  });
-  
-  // Nav link dropdown toggle on mobile
-  document.querySelectorAll('.nav-link').forEach(function (link) {
-    link.addEventListener('click', function (e) {
-      var navItem = link.parentElement;
-      var dropdown = navItem ? navItem.querySelector('.dropdown') : null;
-      
-      if (dropdown && window.innerWidth <= 768) {
-        e.preventDefault();
-        document.querySelectorAll('.dropdown.open').forEach(function (d) {
-          if (d !== dropdown) {
-            d.classList.remove('open');
-            d.closest('.nav-item')?.classList.remove('open');
-          }
-        });
-        dropdown.classList.toggle('open');
-        navItem?.classList.toggle('open');
-      } else {
-        if (mobileToggle && navList) {
-          mobileToggle.classList.remove('active');
-          navList.classList.remove('active');
-          document.querySelectorAll('.dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-          document.querySelectorAll('.nav-item.open').forEach(function (n) { n.classList.remove('open'); });
-        }
-      }
-    });
-  });
- </script>
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => io.observe(el));
+</script>
 
 </body>
 </html>

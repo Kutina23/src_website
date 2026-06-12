@@ -584,22 +584,6 @@ function statusBadgeEl($stMap, $status) {
 }
 </style>
 
-<!-- Mobile menu -->
-<script>
-(function() {
-    var mt = document.querySelector('.mobile-toggle');
-    var nl = document.querySelector('.nav-list');
-    if (!mt || !nl) return;
-    mt.addEventListener('click', function() { mt.classList.toggle('active'); nl.classList.toggle('active'); });
-    document.addEventListener('click', function(e) {
-        if (!mt.contains(e.target) && !nl.contains(e.target)) { mt.classList.remove('active'); nl.classList.remove('active'); }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-        link.addEventListener('click', function() { mt.classList.remove('active'); nl.classList.remove('active'); });
-    });
-})();
-</script>
-
 <?php include __DIR__ . '/include/footer.php'; ?>
 </body>
 </html>

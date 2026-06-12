@@ -251,53 +251,6 @@ $allServices = $servicesModel->getAllActive(['order_by' => 'display_order ASC, c
     document.querySelectorAll('.reveal').forEach(function (el) { observer.observe(el); });
   });
 </script>
-<script>
-  var mobileToggle = document.querySelector('.mobile-toggle');
-  var navList = document.querySelector('.nav-list');
 
-  if (mobileToggle && window.innerWidth <= 900) {
-    mobileToggle.style.display = 'flex';
-  }
-
-  if (mobileToggle && navList) {
-    mobileToggle.addEventListener('click', function () {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-  }
-
-  document.addEventListener('click', function (e) {
-    if (mobileToggle && navList && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-      mobileToggle.classList.remove('active');
-      navList.classList.remove('active');
-    }
-  });
-
-  document.querySelectorAll('.nav-link').forEach(function (link) {
-    link.addEventListener('click', function (e) {
-      var navItem = link.parentElement;
-      var dropdown = navItem ? navItem.querySelector('.dropdown') : null;
-
-      if (dropdown && window.innerWidth <= 768) {
-        e.preventDefault();
-        document.querySelectorAll('.dropdown.open').forEach(function (d) {
-          if (d !== dropdown) {
-            d.classList.remove('open');
-            d.closest('.nav-item')?.classList.remove('open');
-          }
-        });
-        dropdown.classList.toggle('open');
-        navItem?.classList.toggle('open');
-      } else {
-        if (mobileToggle && navList) {
-          mobileToggle.classList.remove('active');
-          navList.classList.remove('active');
-          document.querySelectorAll('.dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-          document.querySelectorAll('.nav-item.open').forEach(function (n) { n.classList.remove('open'); });
-        }
-      }
-    });
-  });
-</script>
 </body>
 </html>

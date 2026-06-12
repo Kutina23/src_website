@@ -227,61 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_complaint'])) 
 <!-- ══════════════════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════════════════ -->
-<script>
-  function copyToken() {
-    var token = document.getElementById('confirmToken').textContent;
-    navigator.clipboard.writeText(token).then(function() {
-      var btn  = document.getElementById('copyTokenBtn');
-      var orig = btn.innerHTML;
-      btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
-      setTimeout(function() { btn.innerHTML = orig; }, 2000);
-    });
-  }
 
-  function setStep(n) {
-    [1, 2, 3].forEach(function(i) {
-      var step = document.getElementById('step' + i + '-indicator');
-      var line = document.getElementById('line-' + i);
-      var cls  = 'form-step';
-      if (i < n)  cls += ' done';
-      if (i === n) cls += ' active';
-      step.className = cls;
-      if (line) line.className = 'form-step-line' + (i < n ? ' done' : '');
-    });
-  }
-
-  function trackComplaint() {
-    var token = document.getElementById('trackTokenInput').value.trim();
-    if (!token) { alert('Enter your tracking token.'); return; }
-    var f = document.createElement('form');
-    f.method = 'POST'; f.action = 'track.php?mode=complaint';
-    var i = document.createElement('input'); i.type = 'hidden'; i.name = 'track_token_input'; i.value = token;
-    f.appendChild(i); document.body.appendChild(f); f.submit();
-  }
-
-  // ── Mobile menu toggle
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
-    if (!mobileToggle || !navList) return;
-    mobileToggle.addEventListener('click', function() {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active');
-        navList.classList.remove('active');
-      }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileToggle.classList.remove('active');
-        navList.classList.remove('active');
-      });
-    });
-  })();
-</script>
 
 <?php include __DIR__ . '/include/footer.php'; ?>
 

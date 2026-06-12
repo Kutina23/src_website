@@ -81,63 +81,83 @@ function sendEmailSMTP($to, $subject, $body, $headers = []) {
     $host = $config['host'];
     $port = $config['port'];
     
-    $smtp = fsockopen($host, $port, $errno, $errstr, 30);
+    $smtp = @fsockopen($host, $port, $errno, $errstr, 15);
     if (!$smtp) {
         error_log("SMTP connection failed: $errstr ($errno)");
         return false;
     }
     
-    $response = fgets($smtp);
-    if (substr($response, 0, 3) !== '220') {
-        fclose($smtp);
+    stream_set_timeout($smtp, 15);
+    
+    $response = @fgets($smtp);
+    if ($response === false || substr($response, 0, 3) !== '220') {
+        @fclose($smtp);
+        error_log('SMTP server not responding');
         return false;
     }
     
-    fwrite($smtp, "EHLO localhost\r\n");
+    @fwrite($smtp, "EHLO localhost\r\n");
     $response = '';
-    while (($line = fgets($smtp)) && substr($line, 3, 1) == '-') {
+    while (($line = @fgets($smtp)) !== false && isset($line[3]) && $line[3] == '-') {
         $response .= $line;
     }
     
     if ($config['encryption'] === 'tls') {
-        fwrite($smtp, "STARTTLS\r\n");
-        fgets($smtp);
-        stream_socket_enable_crypto($smtp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-        fwrite($smtp, "EHLO localhost\r\n");
-        while (fgets($smtp) && substr(fgets($smtp), 3, 1) == '-') {}
+        @fwrite($smtp, "STARTTLS\r\n");
+        $starttlsResponse = @fgets($smtp);
+        if ($starttlsResponse === false || substr($starttlsResponse, 0, 3) !== '220') {
+            @fclose($smtp);
+            error_log('SMTP STARTTLS failed');
+            return false;
+        }
+        $tlsOk = @stream_socket_enable_crypto($smtp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        if (!$tlsOk) {
+            @fclose($smtp);
+            error_log('SMTP TLS handshake failed');
+            return false;
+        }
+        @fwrite($smtp, "EHLO localhost\r\n");
+        $line = '';
+        while (($line = @fgets($smtp)) !== false && strlen($line) > 3 && $line[3] == '-') {}
     }
     
-    fwrite($smtp, "AUTH LOGIN\r\n");
-    fgets($smtp);
-    fwrite($smtp, base64_encode($config['username']) . "\r\n");
-    fgets($smtp);
-    fwrite($smtp, base64_encode($config['password']) . "\r\n");
-    $authResponse = fgets($smtp);
+    @fwrite($smtp, "AUTH LOGIN\r\n");
+    $authResponse = @fgets($smtp);
+    if ($authResponse === false) {
+        @fclose($smtp);
+        error_log('SMTP AUTH not accepted');
+        return false;
+    }
     
-    if (substr($authResponse, 0, 3) !== '235') {
-        fclose($smtp);
+    @fwrite($smtp, base64_encode($config['username']) . "\r\n");
+    @fgets($smtp);
+    @fwrite($smtp, base64_encode($config['password']) . "\r\n");
+    $authResponse = @fgets($smtp);
+    
+    if ($authResponse === false || substr($authResponse, 0, 3) !== '235') {
+        @fclose($smtp);
         error_log('SMTP authentication failed');
         return false;
     }
     
-    fwrite($smtp, "MAIL FROM: <{$config['from_address']}>\r\n");
-    fgets($smtp);
-    fwrite($smtp, "RCPT TO: <{$to}>\r\n");
-    fgets($smtp);
-    fwrite($smtp, "DATA\r\n");
-    fgets($smtp);
+    @fwrite($smtp, "MAIL FROM: <{$config['from_address']}>\r\n");
+    @fgets($smtp);
+    @fwrite($smtp, "RCPT TO: <{$to}>\r\n");
+    @fgets($smtp);
+    @fwrite($smtp, "DATA\r\n");
+    @fgets($smtp);
     
     $message = "To: {$to}\r\n";
     $message .= "Subject: {$subject}\r\n";
     $message .= $headerString;
     $message .= "\r\n{$body}\r\n.";
     
-    fwrite($smtp, $message);
-    $dataResponse = fgets($smtp);
-    fwrite($smtp, "QUIT\r\n");
-    fclose($smtp);
+    @fwrite($smtp, $message);
+    $dataResponse = @fgets($smtp);
+    @fwrite($smtp, "QUIT\r\n");
+    @fclose($smtp);
     
-    return substr($dataResponse, 0, 3) === '250';
+    return $dataResponse !== false && substr($dataResponse, 0, 3) === '250';
 }
 
 function sendEmail($to, $subject, $body, $headers = []) {

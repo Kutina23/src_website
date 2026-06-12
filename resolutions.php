@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/functions.php';
@@ -22,7 +22,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resolutions &amp; Motions — DHLTU SRC</title>
+  <title>Resolutions &amp; Motions â€” DHLTU SRC</title>
   <meta name="description" content="Resolutions and motions passed by DHLTU SRC. Browse the archive of student initiatives and policy decisions.">
   <meta name="keywords" content="DHLTU SRC Resolutions, Motions, Policy Decisions, Student Initiatives">
   <meta name="author" content="DHLTU SRC">
@@ -101,18 +101,19 @@ try {
       <h2 class="section-title">Recent Motion Votes</h2>
     </div>
 
-    <div class="card">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="border-bottom:1px solid rgba(201,168,76,0.2);">
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Motion</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Session</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Title</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Status</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Date</th>
-          </tr>
-        </thead>
-        <tbody>
+<div class="card">
+       <div class="table-responsive">
+         <table style="width:100%;border-collapse:collapse;">
+           <thead>
+             <tr style="border-bottom:1px solid rgba(201,168,76,0.2);">
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Motion</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Session</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Title</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Status</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Date</th>
+             </tr>
+           </thead>
+           <tbody>
           <?php if (empty($allVotes)): ?>
           <tr><td colspan="5" style="padding:32px;text-align:center;color:var(--text-muted);">No motion votes have been recorded yet.</td></tr>
           <?php else: foreach ($allVotes as $vr):
@@ -131,34 +132,16 @@ try {
           </tr>
           <?php endforeach; endif; ?>
         </tbody>
-      </table>
-    </div>
-  </div>
-</section>
+</table>
+       </div>
+     </div>
+   </div>
+ </section>
 
-<script>
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
-    if (!mobileToggle || !navList) return;
-    mobileToggle.addEventListener('click', function() {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      });
-    });
-  })();
-</script>
+
 
 <?php include __DIR__ . '/include/footer.php'; ?>
 
 </body>
 </html>
+

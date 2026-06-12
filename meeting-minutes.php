@@ -49,18 +49,19 @@ try {
       <h2 class="section-title">Available Minutes</h2>
     </div>
 
-    <div class="card">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="border-bottom:1px solid rgba(201,168,76,0.2);">
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Date</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Meeting</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Type</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Status</th>
-            <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Download</th>
-          </tr>
-        </thead>
-        <tbody>
+<div class="card">
+       <div class="table-responsive">
+         <table style="width:100%;border-collapse:collapse;">
+           <thead>
+             <tr style="border-bottom:1px solid rgba(201,168,76,0.2);">
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Date</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Meeting</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Type</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Status</th>
+               <th style="text-align:left;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);">Download</th>
+             </tr>
+           </thead>
+           <tbody>
           <?php if (empty($allMinutes)): ?>
           <tr><td colspan="5" style="padding:32px;text-align:center;color:var(--text-muted);">No meeting minutes have been added yet.</td></tr>
           <?php else: foreach ($allMinutes as $m):
@@ -87,11 +88,12 @@ try {
             </td>
           </tr>
           <?php endforeach; endif; ?>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
+</tbody>
+         </table>
+       </div>
+     </div>
+   </div>
+ </section>
 
 <div class="cinematic-divider"></div>
 
@@ -123,27 +125,7 @@ try {
   </div>
 </section>
 
-<script>
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
-    if (!mobileToggle || !navList) return;
-    mobileToggle.addEventListener('click', function() {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      });
-    });
-  })();
-</script>
+
 
 <?php include __DIR__ . '/include/footer.php'; ?>
 

@@ -470,42 +470,7 @@ if (!$scholarship) {
   }
 </style>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Reveal animations
-    var revealElements = document.querySelectorAll('.reveal');
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        var el = entry.target;
-        if (el.classList.contains('delay-1')) delay = 150;
-        else if (el.classList.contains('delay-2')) delay = 300;
-        else if (el.classList.contains('delay-3')) delay = 450;
-        else if (el.classList.contains('delay-4')) delay = 600;
-        else delay = 0;
-        
-        if (entry.isIntersecting) {
-          setTimeout(function () {
-            el.classList.add('visible');
-          }, delay);
-          observer.unobserve(el);
-        }
-      });
-    }, { threshold: 0.1 });
-    
-    revealElements.forEach(function (el) { observer.observe(el); });
 
-    // Mobile menu
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList = document.querySelector('.nav-list');
-    
-    if (mobileToggle && navList) {
-      mobileToggle.addEventListener('click', function () {
-        mobileToggle.classList.toggle('active');
-        navList.classList.toggle('active');
-      });
-    }
-  });
-</script>
 
 </body>
 </html>

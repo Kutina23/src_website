@@ -101,6 +101,6 @@ $members = $memberModel->getMembers($committee['id'] ?? null);
   </main>
 
 <?php include 'include/footer.php'; ?>
-  <script src="assets/js/main.js"></script>
+  
 </body>
 </html>

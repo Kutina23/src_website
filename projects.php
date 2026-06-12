@@ -78,31 +78,41 @@ $projectCount = $model->getCount();
 
         <?php foreach ($projects as $p): ?>
         <?php
-            $status   = htmlspecialchars($p['status'] ?? 'upcoming');
-            $title    = htmlspecialchars($p['title'] ?? 'Untitled Project');
-            $desc     = htmlspecialchars($p['description'] ?? '');
-            $image    = !empty($p['image_path'])
-                          ? htmlspecialchars($p['image_path'])
-                          : 'https://picsum.photos/seed/prj' . $p['id'] . '/800/600';
-            $badgeCls = match ($status) {
+            $status        = htmlspecialchars($p['status'] ?? 'upcoming', ENT_QUOTES, 'UTF-8');
+            $title         = htmlspecialchars($p['title'] ?? 'Untitled Project', ENT_QUOTES, 'UTF-8');
+            $description   = htmlspecialchars($p['description'] ?? '', ENT_QUOTES, 'UTF-8');
+            $category      = htmlspecialchars($p['category'] ?? 'Project', ENT_QUOTES, 'UTF-8');
+            $image         = !empty($p['image_path'])
+                              ? htmlspecialchars($p['image_path'], ENT_QUOTES, 'UTF-8')
+                              : 'https://picsum.photos/seed/prj' . (int)$p['id'] . '/800/600';
+            $badgeCls      = match ($status) {
                 'upcoming'  => 'proj-upcoming',
                 'ongoing'   => 'proj-ongoing',
                 'completed' => 'proj-completed',
                 default     => '',
             };
-            $badgeLabel = ucfirst($status);
+            $badgeLabel    = ucfirst($status);
         ?>
-        <article class="proj-card" tabindex="0">
+        <article
+          class="proj-card"
+          tabindex="0"
+          data-id="<?php echo (int)$p['id']; ?>"
+          data-title="<?php echo $title; ?>"
+          data-description="<?php echo $description; ?>"
+          data-image="<?php echo $image; ?>"
+          data-status="<?php echo $status; ?>"
+          data-category="<?php echo $category; ?>"
+        >
           <div class="proj-img-wrap">
             <img src="<?php echo $image; ?>" alt="<?php echo $title; ?>" class="proj-img" loading="lazy">
             <span class="proj-badge <?php echo $badgeCls; ?>"><?php echo $badgeLabel; ?></span>
           </div>
           <div class="proj-card-body">
             <span class="proj-category">
-              <i class="bi bi-tag-fill"></i> <?php echo htmlspecialchars($p['category'] ?? 'Project'); ?>
+              <i class="bi bi-tag-fill"></i> <?php echo $category; ?>
             </span>
             <h3 class="proj-title"><?php echo $title; ?></h3>
-            <p class="proj-desc"><?php echo $desc; ?></p>
+            <p class="proj-desc"><?php echo $description; ?></p>
             <div class="proj-actions">
               <button class="proj-btn" type="button">
                 <i class="bi bi-eye"></i> View Details
@@ -462,149 +472,93 @@ $projectCount = $model->getCount();
   }
 </style>
 
+
+
 <script>
-  // ── Mobile Menu Toggle ────────────────────────────────────────
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
+    (() => {
+        const modalOverlay = document.getElementById('projModal');
+        const modalBody = document.getElementById('projModalBody');
+        const modalClose = document.getElementById('projModalClose');
 
-    // Nothing to wire up on desktop
-    if (!mobileToggle || !navList) return;
+        if (!modalOverlay || !modalBody || !modalClose) return;
 
-    // Show the toggle only when the viewport hits the mobile breakpoint
-    function checkBreakpoint() {
-      if (window.innerWidth <= 900) {
-        mobileToggle.style.display = 'flex';
-      } else {
-        mobileToggle.style.display = 'none';
-        navList.classList.remove('active');
-      }
-    }
-    checkBreakpoint();          // initial check on page load
-    window.addEventListener('resize', checkBreakpoint);
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
 
-    // Toggle the slide-in drawer
-    mobileToggle.addEventListener('click', function () {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
+        const statusClass = {
+            upcoming: 'proj-upcoming',
+            ongoing: 'proj-ongoing',
+            completed: 'proj-completed'
+        };
 
-    // Close drawer when clicking outside the nav panel
-    document.addEventListener('click', function (e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active');
-        navList.classList.remove('active');
-      }
-    });
+        const openProjectModal = (card) => {
+            const title = card.dataset.title || 'Untitled Project';
+            const category = card.dataset.category || 'Project';
+            const status = card.dataset.status || 'upcoming';
+            const description = card.dataset.description || 'No description available.';
+            const image = card.dataset.image || 'https://picsum.photos/seed/project/800/600';
 
-    // Dropdown: open/close individual items on mobile
-    document.querySelectorAll('.nav-link').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        var navItem  = link.parentElement;
-        var dropdown = navItem.querySelector('.dropdown');
+            modalBody.innerHTML = `
+                <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" class="proj-modal-img" loading="lazy">
+                <div style="padding: 36px;">
+                    <span class="proj-modal-badge ${statusClass[status] || ''}">${escapeHtml(status.charAt(0).toUpperCase() + status.slice(1))}</span>
+                    <h2 class="proj-modal-title" id="projModalTitle">${escapeHtml(title)}</h2>
+                    <p class="proj-modal-category"><i class="bi bi-tag-fill"></i> ${escapeHtml(category)}</p>
+                    <p class="proj-modal-desc">${escapeHtml(description)}</p>
+                    <div class="proj-modal-meta-row">
+                        <div class="proj-modal-meta-item">
+                            <div class="proj-modal-meta-label">Status</div>
+                            <div class="proj-modal-meta-value">${escapeHtml(status)}</div>
+                        </div>
+                        <div class="proj-modal-meta-item">
+                            <div class="proj-modal-meta-label">Category</div>
+                            <div class="proj-modal-meta-value">${escapeHtml(category)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-        if (dropdown && window.innerWidth <= 768) {
-          e.preventDefault();
+            modalOverlay.classList.add('open');
+            modalOverlay.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            modalClose.focus();
+        };
 
-          // Close every other open dropdown / nav-item pair first
-          document.querySelectorAll('.dropdown.open').forEach(function (d) {
-            if (d !== dropdown) {
-              d.classList.remove('open');
-              d.closest('.nav-item')?.classList.remove('open');
+        const closeProjectModal = () => {
+            modalOverlay.classList.remove('open');
+            modalOverlay.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        };
+
+        document.querySelectorAll('.proj-card').forEach((card) => {
+            const button = card.querySelector('.proj-btn');
+
+            if (button) {
+                button.addEventListener('click', () => openProjectModal(card));
             }
-          });
 
-          dropdown.classList.toggle('open');
-          navItem.classList.toggle('open');
-        } else {
-          // On desktop / tablet: always keep drawer closed
-          if (mobileToggle && navList) {
-            mobileToggle.classList.remove('active');
-            navList.classList.remove('active');
-            document.querySelectorAll('.dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-            document.querySelectorAll('.nav-item.open').forEach(function (n)    { n.classList.remove('open');   });
-          }
-        }
-      });
-    });
-  })();
+            card.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openProjectModal(card);
+                }
+            });
+        });
 
-  // ── Modal state ──────────────────────────────────────────────
-  const modalOverlay    = document.getElementById('projModal');
-  const modalBody       = document.getElementById('projModalBody');
-  const modalClose      = document.getElementById('projModalClose');
+        modalClose.addEventListener('click', closeProjectModal);
 
-  function openModal(data) {
-    const statusCls = {
-      upcoming:  'proj-upcoming',
-      ongoing:   'proj-ongoing',
-      completed: 'proj-completed',
-    }[data.status] || '';
-    const statusLabel = data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'Project';
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) closeProjectModal();
+        });
 
-    modalBody.innerHTML = `
-      <img src="${data.image}" alt="${data.title}" class="proj-modal-img" loading="lazy">
-      <div style="padding: 36px;">
-        <span class="proj-modal-badge ${statusCls}">${statusLabel}</span>
-        <h2 class="proj-modal-title" id="projModalTitle">${data.title}</h2>
-        <p class="proj-modal-category"><i class="bi bi-tag-fill"></i> ${data.category || 'Project'}</p>
-        <p class="proj-modal-desc">${data.description || 'No description available.'}</p>
-        <div class="proj-modal-meta-row">
-          <div class="proj-modal-meta-item">
-            <div class="proj-modal-meta-label">Status</div>
-            <div class="proj-modal-meta-value">${statusLabel}</div>
-          </div>
-          <div class="proj-modal-meta-item">
-            <div class="proj-modal-meta-label">Category</div>
-            <div class="proj-modal-meta-value">${data.category || '—'}</div>
-          </div>
-        </div>
-      </div>
-    `;
-    modalOverlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    modalClose.focus();
-  }
-
-  function closeModal() {
-    modalOverlay.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  modalClose.addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', function (e) {
-    if (e.target === modalOverlay) closeModal();
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeModal();
-  });
-
-  // ── Attach open-handler to each card's button ────────────────
-  document.querySelectorAll('.proj-card').forEach(function (card) {
-    var btn = card.querySelector('.proj-btn');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      openModal({
-        title:       card.querySelector('.proj-title').textContent.trim(),
-        description: card.querySelector('.proj-desc').textContent.trim(),
-        image:       card.querySelector('.proj-img').src,
-        status:      card.dataset.status || 'upcoming',
-        category:    card.dataset.category || '',
-      });
-    });
-  });
-
-  // ── Seed card data-attributes from server-side interpolation ──
-  document.querySelectorAll('.proj-card').forEach(function (card) {
-    <?php foreach ($projects as $p): ?>
-    <?php if ((int)$p['id'] > 0): ?>
-    if (card.querySelector('.proj-title').textContent.trim() === <?php echo json_encode($p['title']); ?>) {
-      card.dataset.status   = <?php echo json_encode($p['status']); ?>;
-      card.dataset.category = <?php echo json_encode($p['category'] ?? ''); ?>;
-    }
-    <?php endif; ?>
-    <?php endforeach; ?>
-  });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeProjectModal();
+        });
+    })();
 </script>
 
 </body>

@@ -1,4 +1,5 @@
 <form class="register-form" action="api/club-register.php" method="POST" enctype="multipart/form-data" id="clubRegistrationForm">
+  <div id="clubRegAlert" style="display: none; padding: 14px 20px; margin-bottom: 20px; border-radius: 8px; font-weight: 600; font-size: 14px;"></div>
   <div class="form-row">
     <div class="form-field">
       <label for="clubName">Club Name *</label>
@@ -67,25 +68,22 @@
   <button type="submit" style="padding: 14px 32px; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--navy); background: linear-gradient(135deg, var(--gold-light), var(--gold)); border: none; cursor: pointer;">Submit Registration →</button>
 </form>
 
-<style>
-  #clubRegSuccess {
-    display: none;
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    font-weight: 600;
-    font-size: 15px;
-    text-align: center;
-  }
-</style>
-
 <script>
   (function () {
     const form = document.getElementById('clubRegistrationForm');
+    const alertBox = document.getElementById('clubRegAlert');
     if (!form) return;
+
+    function showAlert(message, isSuccess) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = isSuccess ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
+      alertBox.style.color = isSuccess ? '#22c55e' : '#ef4444';
+      alertBox.style.border = '1px solid ' + (isSuccess ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)');
+      alertBox.textContent = message;
+      if (isSuccess) {
+        setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+      }
+    }
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -101,23 +99,14 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.success) {
-          // Remove any old banner
-          var old = document.getElementById('clubRegSuccess');
-          if (old) old.parentNode.removeChild(old);
-
-          // Prepend success banner
-          var notice = document.createElement('div');
-          notice.id = 'clubRegSuccess';
-          notice.textContent = data.message || 'Registration submitted successfully!';
-          form.parentNode.insertBefore(notice, form);
-
+          showAlert(data.message || 'Registration submitted successfully!', true);
           form.reset();
         } else {
-          alert(data.message || 'Registration failed. Please try again.');
+          showAlert(data.message || 'Registration failed. Please try again.', false);
         }
       })
       .catch(function () {
-        alert('An error occurred. Please try again.');
+        showAlert('An error occurred. Please try again.', false);
       })
       .finally(function () {
         btn.disabled = false;

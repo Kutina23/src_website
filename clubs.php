@@ -39,7 +39,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 </div>
 
 <!-- All Clubs Grid -->
-<div class="clubs-grid" id="all-clubs">
+<div class="clubs-grid active" id="all-clubs">
   <?php foreach ($clubs as $club): 
     $imageSeed = strtolower(str_replace([' ', '&', '/'], '-', $club['name']));
     $presidentName = trim(($club['president_first'] ?? '') . ' ' . ($club['president_last'] ?? ''));
@@ -88,88 +88,22 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 <?php include 'include/footer.php'; ?>
 
 <script>
-// Expose a clean global so the header Register button can call it directly
-window.clubsOpenForm = function() {
-  document.querySelectorAll('.clubs-tab').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelector('[data-tab="register-club"]').classList.add('active');
-  document.getElementById('all-clubs').style.display = 'none';
-  document.getElementById('register-club').classList.add('active');
-};
-
-// Tab switching functionality — header buttons and page tabs
-document.querySelectorAll('.clubs-tab').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    var targetTab = this.getAttribute('data-tab');
-    if (!targetTab) return;
-
-    document.querySelectorAll('.clubs-tab').forEach(function(t) { t.classList.remove('active'); });
-    this.classList.add('active');
-
-    if (targetTab === 'register-club') {
-      document.getElementById('all-clubs').style.display = 'none';
-      document.getElementById('register-club').classList.add('active');
-    } else {
-      document.getElementById('register-club').classList.remove('active');
-      document.getElementById('all-clubs').style.display = 'grid';
-    }
-  });
-});
-
-// New club card click
-document.querySelector('.new-club-card').addEventListener('click', function() {
-  window.clubsOpenForm();
-});
-</script>
-<script>
-// Mobile menu toggle (outside DOMContentLoaded for immediate execution)
-var mobileToggle = document.querySelector('.mobile-toggle');
-var navList = document.querySelector('.nav-list');
-
-if (mobileToggle && window.innerWidth <= 900) {
-  mobileToggle.style.display = 'flex';
-}
-
-if (mobileToggle && navList) {
-  mobileToggle.addEventListener('click', function () {
-    mobileToggle.classList.toggle('active');
-    navList.classList.toggle('active');
-  });
-}
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', function (e) {
-  if (mobileToggle && navList && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-    mobileToggle.classList.remove('active');
-    navList.classList.remove('active');
-  }
-});
-
-// Nav link dropdown toggle on mobile
-document.querySelectorAll('.nav-link').forEach(function (link) {
-  link.addEventListener('click', function (e) {
-    var navItem = link.parentElement;
-    var dropdown = navItem ? navItem.querySelector('.dropdown') : null;
+  (function() {
+    const tabs = document.querySelectorAll('.clubs-tab');
+    const allClubs = document.getElementById('all-clubs');
+    const registerClub = document.getElementById('register-club');
     
-    if (dropdown && window.innerWidth <= 768) {
-      e.preventDefault();
-      document.querySelectorAll('.dropdown.open').forEach(function (d) {
-        if (d !== dropdown) {
-          d.classList.remove('open');
-          d.closest('.nav-item')?.classList.remove('open');
-        }
-      });
-      dropdown.classList.toggle('open');
-      navItem?.classList.toggle('open');
-    } else {
-      if (mobileToggle && navList) {
-        mobileToggle.classList.remove('active');
-        navList.classList.remove('active');
-        document.querySelectorAll('.dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-        document.querySelectorAll('.nav-item.open').forEach(function (n) { n.classList.remove('open'); });
-      }
+    function switchTab(tabId) {
+      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabId));
+      allClubs.classList.toggle('active', tabId === 'all-clubs');
+      registerClub.classList.toggle('active', tabId === 'register-club');
     }
-  });
-});
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+  })();
 </script>
+
 </body>
 </html>

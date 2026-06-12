@@ -250,73 +250,7 @@ $resBadge = fn(string $cat) => match($cat) {
   </div>
 </section>
 
-<script>
-  // Mobile menu toggle
-  (function() {
-    var mobileToggle = document.querySelector('.mobile-toggle');
-    var navList      = document.querySelector('.nav-list');
-    if (!mobileToggle || !navList) return;
-    mobileToggle.addEventListener('click', function() {
-      mobileToggle.classList.toggle('active');
-      navList.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      }
-    });
-    document.querySelectorAll('.nav-link').forEach(function(link) {
-      link.addEventListener('click', function() {
-        mobileToggle.classList.remove('active'); navList.classList.remove('active');
-      });
-    });
-  })();
 
-  // ── Public Vote ────────────────────────────────────────
-  (function() {
-    var csrf = '<?php echo $_SESSION["csrf_token"] ?? ""; ?>';
-
-    function postVote(btn) {
-      var votingId = btn.getAttribute('data-voting-id');
-      var choice   = btn.getAttribute('data-choice');
-      var deviceId = btn.closest('.vote-controls').getAttribute('data-device-id');
-      var msgEl    = document.getElementById('vote-msg-' + votingId);
-
-      btn.disabled = true;
-      btn.textContent = '...';
-
-      fetch('public_vote.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voting_id: parseInt(votingId), choice: choice, device_id: deviceId, csrf_token: csrf })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        if (d.ok) {
-          // Reload page to show updated counts and "Voted" badge
-          location.reload();
-        } else {
-          btn.disabled = false;
-          btn.textContent = btn.classList.contains('vote-yes') ? '✓ YES' : '✗ NO';
-          msgEl.textContent = d.error || 'Vote failed.';
-          msgEl.style.cssText = 'display:block;color:var(--accent-red);font-size:11px;margin-top:4px;';
-          setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
-        }
-      })
-      .catch(function() {
-        btn.disabled = false;
-        btn.textContent = btn.classList.contains('vote-yes') ? '✓ YES' : '✗ NO';
-        msgEl.textContent = 'Network error.';
-        msgEl.style.cssText = 'display:block;color:var(--accent-red);font-size:11px;margin-top:4px;';
-        setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
-      });
-    }
-
-    document.querySelectorAll('.vote-btn:not([disabled])').forEach(function(btn) {
-      btn.addEventListener('click', function() { postVote(btn); });
-    });
-  })();
-</script>
 
 <?php include __DIR__ . '/include/footer.php'; ?>
 

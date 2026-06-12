@@ -31,6 +31,75 @@ $dean = $staffModel->getDeanOfStudents();
 
 $executives = $db->fetchAll($sql, [$selectedYear, $selectedYear]);
 
+/**
+ * Get core responsibilities based on executive position
+ */
+function getResponsibilities($position) {
+    $responsibilities = [
+        'SRC President' => [
+            'Lead SRC meetings and general assemblies',
+            'Represent student interests to administration',
+            'Oversee all council committees',
+            'Approve council budgets and expenditures'
+        ],
+        'Vice President' => [
+            'Assist the President in duties',
+            'Preside over meetings in President\'s absence',
+            'Coordinate council activities',
+            'Lead special council projects'
+        ],
+        'General Secretary' => [
+            'Record meeting minutes and resolutions',
+            'Maintain official council records',
+            'Prepare council correspondence',
+            'Manage council documentation'
+        ],
+        'SRC Finance Officer' => [
+            'Manage council finances and accounts',
+            'Prepare financial reports',
+            'Process council budget allocations',
+            'Conduct financial audits'
+        ],
+        'SRC Organizer' => [
+            'Organize council events and activities',
+            'Coordinate student programs',
+            'Manage event logistics',
+            'Engage student body in activities'
+        ],
+        'PRO' => [
+            'Handle public relations and communications',
+            'Manage council social media presence',
+            'Prepare press releases',
+            'Coordinate media coverage'
+        ],
+        'SRC Chief Justice' => [
+            'Preside over judicial proceedings',
+            'Interpret council constitution',
+            'Resolve disputes and grievances',
+            'Ensure fair and just decisions'
+        ],
+        'Women\'s Commissioner' => [
+            'Advocate for women\'s rights and welfare',
+            'Represent women student issues',
+            'Organize women-focused programs',
+            'Promote gender equality initiatives'
+        ],
+        'Rt. Hon. Speaker' => [
+            'Preside over General Assembly sessions',
+            'Maintain order during meetings',
+            'Ensure procedural compliance',
+            'Facilitate student deliberations'
+        ],
+    ];
+
+    return $responsibilities[$position] ?? [
+        'Serve on council committees',
+        'Participate in council activities',
+        'Represent student interests',
+        'Support council initiatives'
+    ];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1300,7 +1369,7 @@ $executives = $db->fetchAll($sql, [$selectedYear, $selectedYear]);
                     ];
                 ?>
                      <article class="profile-card reveal" style="animation-delay: <?php echo min($index * 0.05, 0.3); ?>s; cursor: pointer;" 
-                            onclick='openMemberDetailsModal(<?php echo json_encode($memberData); ?>)'>
+                             onclick="openMemberDetailsModal(<?php echo htmlspecialchars(json_encode($memberData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8'); ?>)">
                         <!-- Profile Headshot -->
                         <div class="profile-image-wrapper">
                             <?php if (!empty($executive['profile_image_path'])): ?>
@@ -1427,6 +1496,104 @@ $executives = $db->fetchAll($sql, [$selectedYear, $selectedYear]);
 <?php include 'include/footer.php'; ?>
 
 <script>
+    const detailsModal = document.getElementById('detailsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function openMemberDetailsModal(member) {
+        if (!detailsModal || !modalTitle || !modalContent) return;
+
+        const responsibilities = Array.isArray(member.key_responsibilities) ? member.key_responsibilities : [];
+        const contacts = [];
+
+        if (member.email) {
+            contacts.push({ label: 'Email', value: `<a href="mailto:${escapeHtml(member.email)}">${escapeHtml(member.email)}</a>` });
+        }
+        if (member.phone) {
+            contacts.push({ label: 'Phone', value: `<a href="tel:${escapeHtml(member.phone)}">${escapeHtml(member.phone)}</a>` });
+        }
+        if (member.staff_id) {
+            contacts.push({ label: 'Staff ID', value: escapeHtml(member.staff_id) });
+        }
+
+        const socialLinks = [];
+        if (member.linkedin) {
+            socialLinks.push(`<a href="${escapeHtml(member.linkedin)}" target="_blank" rel="noopener noreferrer">LinkedIn</a>`);
+        }
+        if (member.facebook) {
+            socialLinks.push(`<a href="${escapeHtml(member.facebook)}" target="_blank" rel="noopener noreferrer">Facebook</a>`);
+        }
+        if (member.tiktok) {
+            socialLinks.push(`<a href="${escapeHtml(member.tiktok)}" target="_blank" rel="noopener noreferrer">TikTok</a>`);
+        }
+
+        const imageHtml = member.profile_image_path
+            ? `<img src="${escapeHtml(member.profile_image_path)}" alt="${escapeHtml(member.name)}" class="member-detail-image">`
+            : `<div class="member-detail-fallback">👤</div>`;
+
+        modalTitle.textContent = member.name || 'Profile Details';
+        modalContent.innerHTML = `
+            <div class="member-details">
+                ${imageHtml}
+                <div class="member-detail-info">
+                    <div class="member-position">${escapeHtml(member.position || '')}</div>
+                    <h4>${escapeHtml(member.name || '')}</h4>
+                    <p class="member-bio">${escapeHtml(member.bio || 'Dedicated SRC leader committed to student welfare and institutional excellence.')}</p>
+                    <div class="member-detail-contacts">
+                        ${contacts.map(contact => `
+                            <div class="contact-item">
+                                <span class="contact-label">${escapeHtml(contact.label)}</span>
+                                <span class="contact-value">${contact.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${socialLinks.length ? `
+                        <div class="member-detail-social">
+                            <h5>Social</h5>
+                            <div class="contact-value">${socialLinks.join(' · ')}</div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            ${responsibilities.length ? `
+                <div class="member-detail-responsibilities">
+                    <h5>Key Responsibilities</h5>
+                    <ul class="responsibilities-list">
+                        ${responsibilities.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        `;
+
+        detailsModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailsModal() {
+        if (!detailsModal) return;
+        detailsModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    if (detailsModal) {
+        detailsModal.addEventListener('click', (event) => {
+            if (event.target === detailsModal) closeDetailsModal();
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeDetailsModal();
+    });
+
     // Scroll reveal animation
     const revealElements = document.querySelectorAll('.reveal');
     
@@ -1441,148 +1608,10 @@ $executives = $db->fetchAll($sql, [$selectedYear, $selectedYear]);
     revealElements.forEach(element => observer.observe(element));
 
      // Mobile menu toggle
-     const mobileToggle = document.querySelector('.mobile-toggle');
-     const navList = document.querySelector('.nav-list');
      
-     if (mobileToggle) {
-         mobileToggle.addEventListener('click', () => {
-             navList.classList.toggle('active');
-         });
-     }
-     
-     // Details Modal
-     const detailsModal = document.getElementById('detailsModal');
-     
-     function openMemberDetailsModal(memberData) {
-         // Set modal title
-         document.getElementById('modalTitle').textContent = memberData.name;
-         
-         // Set modal content
-         let content = `
-             <div class="member-details">
-                 ${memberData.profile_image_path ? `<img src="${memberData.profile_image_path}" alt="${memberData.name}" class="member-detail-image">` : '<div class="member-detail-fallback">👤</div>'}
-                 
-                 <div class="member-detail-info">
-                     <h4>${memberData.name}</h4>
-                     <p class="member-position">${memberData.position}</p>
-                     ${memberData.bio ? `<p class="member-bio">${memberData.bio.replace(/\n/g, '<br>')}</p>` : ''}
-                     
-                     <div class="member-detail-contacts">
-                         ${memberData.email ? `<div class="contact-item"><span class="contact-label">Email:</span><a href="mailto:${memberData.email}" class="contact-value">${memberData.email}</a></div>` : ''}
-                         ${memberData.phone ? `<div class="contact-item"><span class="contact-label">Phone:</span><span class="contact-value"><a href="tel:${memberData.phone}">${memberData.phone}</a></span></div>` : ''}
-                         ${memberData.staff_id ? `<div class="contact-item"><span class="contact-label">Staff ID:</span><span class="contact-value">${memberData.staff_id}</span></div>` : ''}
-                     </div>
-                     
-                      ${(memberData.linkedin || memberData.facebook || memberData.tiktok) ? `
-                          <div class="member-detail-social">
-                              <h5>Social Media</h5>
-                              <div class="social-links">
-                                  ${memberData.linkedin ? `<a href="${memberData.linkedin}" target="_blank" class="social-link linkedin"><i class="bi bi-linkedin"></i> LinkedIn</a>` : ''}
-                                  ${memberData.facebook ? `<a href="${memberData.facebook}" target="_blank" class="social-link facebook"><i class="bi bi-facebook"></i> Facebook</a>` : ''}
-                                  ${memberData.tiktok ? `<a href="${memberData.tiktok}" target="_blank" class="social-link tiktok">TikTok</a>` : ''}
-                              </div>
-                          </div>
-                      ` : ''}
-                     
-                     ${memberData.key_responsibilities && Array.isArray(memberData.key_responsibilities) && memberData.key_responsibilities.length > 0 ? `
-                         <div class="member-detail-responsibilities">
-                             <h5>Key Responsibilities</h5>
-                             <ul class="responsibilities-list">
-                                 ${memberData.key_responsibilities.map(resp => `<li>${resp}</li>`).join('')}
-                             </ul>
-                         </div>
-                     ` : ''}
-                 </div>
-             </div>
-         `;
-         
-         document.getElementById('modalContent').innerHTML = content;
-         detailsModal.style.display = 'flex';
-     }
-     
-     function closeDetailsModal() {
-         detailsModal.style.display = 'none';
-     }
-     
-     // Close modal when clicking outside
-     window.onclick = function(event) {
-         if (event.target == detailsModal) {
-             closeDetailsModal();
-         }
-     }
- </script>
+</script>
+
 </body>
 </html>
 
-<?php
 
-/**
- * Get core responsibilities based on executive position
- */
-function getResponsibilities($position) {
-    $responsibilities = [
-        'SRC President' => [
-            'Lead SRC meetings and general assemblies',
-            'Represent student interests to administration',
-            'Oversee all council committees',
-            'Approve council budgets and expenditures'
-        ],
-        'Vice President' => [
-            'Assist the President in duties',
-            'Preside over meetings in President\'s absence',
-            'Coordinate council activities',
-            'Lead special council projects'
-        ],
-        'General Secretary' => [
-            'Record meeting minutes and resolutions',
-            'Maintain official council records',
-            'Prepare council correspondence',
-            'Manage council documentation'
-        ],
-        'SRC Finance Officer' => [
-            'Manage council finances and accounts',
-            'Prepare financial reports',
-            'Process council budget allocations',
-            'Conduct financial audits'
-        ],
-        'SRC Organizer' => [
-            'Organize council events and activities',
-            'Coordinate student programs',
-            'Manage event logistics',
-            'Engage student body in activities'
-        ],
-        'PRO' => [
-            'Handle public relations and communications',
-            'Manage council social media presence',
-            'Prepare press releases',
-            'Coordinate media coverage'
-        ],
-        'SRC Chief Justice' => [
-            'Preside over judicial proceedings',
-            'Interpret council constitution',
-            'Resolve disputes and grievances',
-            'Ensure fair and just decisions'
-        ],
-        'Women\'s Commissioner' => [
-            'Advocate for women\'s rights and welfare',
-            'Represent women student issues',
-            'Organize women-focused programs',
-            'Promote gender equality initiatives'
-        ],
-        'Rt. Hon. Speaker' => [
-            'Preside over General Assembly sessions',
-            'Maintain order during meetings',
-            'Ensure procedural compliance',
-            'Facilitate student deliberations'
-        ],
-    ];
-
-    return $responsibilities[$position] ?? [
-        'Serve on council committees',
-        'Participate in council activities',
-        'Represent student interests',
-        'Support council initiatives'
-    ];
-}
-
-?>

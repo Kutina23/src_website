@@ -554,48 +554,6 @@ function getTagList($tagsJson) {
 
   <?php include 'include/footer.php'; ?>
 
-<script>
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top  = e.clientY + 'px';
-      setTimeout(() => { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }, 80);
-    });
-    // Filter tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
-    });
 
-    /* ── Mobile Menu Toggle ── */
-    var mobileToggle = document.querySelector(".mobile-toggle");
-    var navList = document.querySelector(".nav-list");
-    if (mobileToggle && navList) {
-      mobileToggle.addEventListener("click", function() {
-        this.classList.toggle("active");
-        navList.classList.toggle("active");
-      });
-      document.addEventListener("click", function(e) {
-        if (navList.classList.contains("active") && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-          mobileToggle.classList.remove("active");
-          navList.classList.remove("active");
-        }
-      });
-    }
-    document.querySelectorAll(".nav-item > .nav-link").forEach(function(link) {
-      link.addEventListener("click", function(e) {
-        var parentItem = this.closest(".nav-item");
-        var dropdown = parentItem.querySelector(".dropdown");
-        if (dropdown) {
-          e.preventDefault();
-          parentItem.classList.toggle("open");
-          dropdown.classList.toggle("open");
-        }
-      });
-    });
-  </script>
 </body>
 </html>

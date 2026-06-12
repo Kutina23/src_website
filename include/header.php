@@ -91,7 +91,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="#" class="nav-link" data-dropdown="committees" aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-committees">Committees <span class="nav-chevron"></span></a>
+        <a href="#" class="nav-link" data-dropdown="committees" aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-committees" data-dropdown-direction="up">Committees <span class="nav-chevron"></span></a>
         <div class="dropdown" id="dropdown-committees">
           <a href="tech-innovation.php" class="dropdown-item">Tech & Innovation Committee</a>
           <a href="wealthfare_health_com.php" class="dropdown-item">Welfare & Health Committee</a>
@@ -109,7 +109,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="#" class="nav-link" data-dropdown="ga" aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-ga">GA <span class="nav-chevron"></span></a>
+        <a href="#" class="nav-link" data-dropdown="ga" aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-ga" data-dropdown-direction="up">GA <span class="nav-chevron"></span></a>
         <div class="dropdown" id="dropdown-ga">
           <a href="annual-general-meeting.php" class="dropdown-item">Annual General Meeting</a>
           <a href="emergency-ga.php" class="dropdown-item">Emergency General Assembly</a>
@@ -129,3 +129,4 @@
     </div>
   </nav>
 </header>
+<script src="assets/js/navigation.js"></script>

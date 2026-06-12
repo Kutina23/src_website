@@ -207,33 +207,7 @@ $eraSessions = $gaModel->getByType('EMERGENCY', 20);
 </section>
 
 <?php include 'include/footer.php'; ?>
-<script>
-(function() {
-  var mobileToggle = document.querySelector('.mobile-toggle');
-  var navList      = document.querySelector('.nav-list');
 
-  if (!mobileToggle || !navList) return;
-
-  mobileToggle.addEventListener('click', function() {
-    mobileToggle.classList.toggle('active');
-    navList.classList.toggle('active');
-  });
-
-  document.addEventListener('click', function(e) {
-    if (!mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-      mobileToggle.classList.remove('active');
-      navList.classList.remove('active');
-    }
-  });
-
-  document.querySelectorAll('.nav-link').forEach(function(link) {
-    link.addEventListener('click', function() {
-      mobileToggle.classList.remove('active');
-      navList.classList.remove('active');
-    });
-  });
-})();
-</script>
 
 </body>
 </html>
