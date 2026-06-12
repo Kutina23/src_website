@@ -72,7 +72,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     </div>
     <div class="new-club-title">Register Your Club</div>
     <div class="new-club-desc">Have an idea for a new club? Start the registration process here.</div>
-    <button class="clubs-tab" style="padding: 8px 24px; font-size: 12px;">Start Registration</button>
+    <button class="clubs-tab" style="padding: 8px 24px; font-size: 12px;" data-tab="register-club">Start Registration</button>
   </div>
 </div>
 

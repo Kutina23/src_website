@@ -78,6 +78,7 @@ $downloads = $downloadsModel->getAllActive();
   <title><?php echo $pageTitle; ?> | DHLTU SRC Admin</title>
   <link rel="stylesheet" href="../assets/css/sidebar.css">
   <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <script>window.currentUserRole = "<?php echo $currentRole; ?>";</script>
   <style>

@@ -10,11 +10,10 @@ class Clubs {
         $sql = "SELECT c.id, c.name, c.description, c.president_id, c.advisor_id, c.category,
                        c.status, c.founded_date, c.meeting_day, c.meeting_time, c.meeting_location,
                        c.logo_path,
-                       COUNT(cm.user_id) as member_count,
+                       (SELECT COUNT(*) FROM club_members WHERE club_id = c.id) as member_count,
                        p.first_name as president_first, p.last_name as president_last,
                        a.first_name as advisor_first, a.last_name as advisor_last
                 FROM clubs c
-                LEFT JOIN club_members cm ON c.id = cm.club_id
                 LEFT JOIN users p ON c.president_id = p.id
                 LEFT JOIN users a ON c.advisor_id = a.id
                 WHERE 1=1";
@@ -45,13 +44,11 @@ class Clubs {
         $sql = "SELECT c.*,
                        p.first_name as president_first, p.last_name as president_last, p.email as president_email,
                        a.first_name as advisor_first, a.last_name as advisor_last, a.email as advisor_email,
-                       COUNT(cm.user_id) as member_count
-                FROM clubs c
-                LEFT JOIN users p ON c.president_id = p.id
-                LEFT JOIN users a ON c.advisor_id = a.id
-                LEFT JOIN club_members cm ON c.id = cm.club_id
-                WHERE c.id = ?
-                GROUP BY c.id";
+                       (SELECT COUNT(*) FROM club_members WHERE club_id = c.id) as member_count
+                 FROM clubs c
+                 LEFT JOIN users p ON c.president_id = p.id
+                 LEFT JOIN users a ON c.advisor_id = a.id
+                 WHERE c.id = ?";
         return $this->db->fetch($sql, [$id]);
     }
 
@@ -139,14 +136,17 @@ class Clubs {
 
     public function getAllActive($limit = null) {
         $sql = "SELECT c.id, c.name, c.description, c.category, c.founded_date, c.logo_path,
-                       COUNT(cm.user_id) as member_count,
+                       (SELECT COUNT(*) FROM club_members WHERE club_id = c.id) as member_count,
                        p.first_name as president_first, p.last_name as president_last
                 FROM clubs c
-                LEFT JOIN club_members cm ON c.id = cm.club_id
-                LEFT JOIN club_presidents cp ON c.id = cp.club_id AND cp.status = 'ACTIVE'
-                LEFT JOIN users p ON cp.user_id = p.id
+                LEFT JOIN users p ON p.id = (
+                    SELECT cp.user_id
+                    FROM club_presidents cp
+                    WHERE cp.club_id = c.id AND cp.status = 'ACTIVE'
+                    ORDER BY cp.assigned_at DESC
+                    LIMIT 1
+                )
                 WHERE c.status = 'ACTIVE'
-                GROUP BY c.id
                 ORDER BY member_count DESC";
 
         if ($limit !== null) {
@@ -254,6 +254,32 @@ class Clubs {
                 "UPDATE clubs SET status = 'ACTIVE' WHERE id = ?",
                 [$registration['club_id']]
             );
+
+            $club = $this->getById($registration['club_id']);
+            $memberUserId = (int)($club['president_id'] ?? 0);
+
+            if (!$memberUserId) {
+                $user = $this->db->fetch(
+                    "SELECT id FROM users WHERE email = ? AND is_active = TRUE LIMIT 1",
+                    [$registration['contact_email']]
+                );
+                $memberUserId = (int)($user['id'] ?? 0);
+            }
+
+            if ($memberUserId > 0) {
+                $this->db->upsert("club_members", [
+                    "club_id" => (int)$registration['club_id'],
+                    "user_id" => $memberUserId
+                ], [
+                    "role" => "MEMBER",
+                    "joined_date" => date("Y-m-d")
+                ]);
+                logActivity("add_club_member", $_SESSION["user_id"] ?? null, [
+                    "club_id" => (int)$registration['club_id'],
+                    "user_id" => $memberUserId,
+                    "role" => "MEMBER"
+                ]);
+            }
         }
         return $result;
     }

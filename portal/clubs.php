@@ -293,7 +293,7 @@ $statusOptions = ["ACTIVE", "INACTIVE", "SUSPENDED"];
                                             <span class="badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($club["status"]); ?></span>
                                         </td>
                                         <td>
-                                            <a href="?action=edit&id=<?php echo $club["id"]; ?>" class="btn btn-sm btn-outline" style="padding:4px 8px;"><i class="bi bi-pencil"></i></a>
+                                            <button type="button" class="btn btn-sm btn-outline" style="padding:4px 8px;" onclick="openEditModal(this)" data-club="<?php echo htmlspecialchars(json_encode($club), ENT_QUOTES); ?>" title="Edit"><i class="bi bi-pencil"></i></button>
                                             <a href="?action=delete&id=<?php echo $club["id"]; ?>" class="btn btn-sm btn-danger" style="padding:4px 8px;" onclick="return confirm('Are you sure you want to delete this club?')"><i class="bi bi-trash"></i></a>
                                         </td>
                                     </tr>
@@ -311,7 +311,7 @@ $statusOptions = ["ACTIVE", "INACTIVE", "SUSPENDED"];
     <div id="clubModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
         <div style="background:#fff;border-radius:12px;max-width:640px;width:90%;max-height:90vh;overflow-y:auto;">
             <div style="padding:24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
-                <h3 style="margin:0;"><?php echo $editClub ? "Edit" : "Add"; ?> Club</h3>
+                <h3 style="margin:0;" data-modal-title><?php echo $editClub ? "Edit" : "Add"; ?> Club</h3>
                 <button onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
             </div>
             <form method="POST" enctype="multipart/form-data" style="padding:24px;">
@@ -410,13 +410,70 @@ $statusOptions = ["ACTIVE", "INACTIVE", "SUSPENDED"];
 
                 <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px;">
                     <button type="button" onclick="closeModal()" class="btn btn-outline">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><?php echo $editClub ? "Update" : "Create"; ?> Club</button>
+                    <button type="submit" class="btn btn-primary" data-modal-submit><?php echo $editClub ? "Update" : "Create"; ?> Club</button>
                 </div>
             </form>
         </div>
     </div>
 
-<script src="../assets/js/sidebar.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
     <script src="../assets/js/loader-service.js"></script>
+    <script>
+        function resetClubForm() {
+            const modal = document.getElementById('clubModal');
+            const form = modal.querySelector('form');
+            form.querySelector('input[name="id"]').value = '';
+            form.querySelector('input[name="action"]').value = 'create';
+            form.querySelector('input[name="name"]').value = '';
+            form.querySelector('textarea[name="description"]').value = '';
+            form.querySelector('select[name="category"]').value = '';
+            form.querySelector('select[name="status"]').value = 'ACTIVE';
+            form.querySelector('select[name="president_id"]').value = '';
+            form.querySelector('select[name="advisor_id"]').value = '';
+            form.querySelector('input[name="founded_date"]').value = '';
+            form.querySelector('select[name="meeting_day"]').value = '';
+            form.querySelector('input[name="meeting_time"]').value = '';
+            form.querySelector('input[name="meeting_location"]').value = '';
+            form.querySelector('input[name="logo"]').value = '';
+            modal.querySelector('[data-modal-title]').textContent = 'Add Club';
+            modal.querySelector('[data-modal-submit]').textContent = 'Create Club';
+        }
+
+        function openModal() {
+            resetClubForm();
+            document.getElementById('clubModal').style.display = 'flex';
+        }
+
+        function openEditModal(button) {
+            const club = JSON.parse(button.getAttribute('data-club'));
+            const modal = document.getElementById('clubModal');
+            const form = modal.querySelector('form');
+
+            form.querySelector('input[name="id"]').value = club.id;
+            form.querySelector('input[name="action"]').value = 'edit';
+            form.querySelector('input[name="name"]').value = club.name || '';
+            form.querySelector('textarea[name="description"]').value = club.description || '';
+            form.querySelector('select[name="category"]').value = club.category || '';
+            form.querySelector('select[name="status"]').value = club.status || 'ACTIVE';
+            form.querySelector('select[name="president_id"]').value = club.president_id || '';
+            form.querySelector('select[name="advisor_id"]').value = club.advisor_id || '';
+            form.querySelector('input[name="founded_date"]').value = club.founded_date || '';
+            form.querySelector('select[name="meeting_day"]').value = club.meeting_day || '';
+            form.querySelector('input[name="meeting_time"]').value = club.meeting_time || '';
+            form.querySelector('input[name="meeting_location"]').value = club.meeting_location || '';
+            modal.querySelector('[data-modal-title]').textContent = 'Edit Club';
+            modal.querySelector('[data-modal-submit]').textContent = 'Update Club';
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('clubModal').style.display = 'none'; }
+        document.getElementById('clubModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        <?php if ($editClub): ?>
+        document.getElementById('clubModal').style.display = 'flex';
+        <?php endif; ?>
+    </script>
 </body>
 </html>

@@ -328,16 +328,61 @@ function getHallMotto($hallName) {
     // Toggle mobile menu
     if (mobileToggle && navList) {
       mobileToggle.addEventListener('click', () => {
-        mobileToggle.classList.toggle('active');
-        navList.classList.toggle('active');
+        const isOpen = navList.classList.toggle('active');
+        mobileToggle.classList.toggle('active', isOpen);
+        mobileToggle.setAttribute('aria-expanded', String(isOpen));
       });
     }
+
+    document.querySelectorAll('.nav-link[data-dropdown]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const navItem = link.closest('.nav-item');
+        const dropdown = navItem?.querySelector('.dropdown');
+        if (!navItem || !dropdown) return;
+
+        const willOpen = !navItem.classList.contains('open');
+
+        document.querySelectorAll('.nav-item.open').forEach((item) => {
+          item.classList.remove('open');
+          item.querySelector('.nav-link[data-dropdown]')?.setAttribute('aria-expanded', 'false');
+          item.querySelector('.dropdown')?.classList.remove('open');
+        });
+
+        navItem.classList.toggle('open', willOpen);
+        dropdown.classList.toggle('open', willOpen);
+        link.setAttribute('aria-expanded', String(willOpen));
+      });
+    });
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item.open').forEach((navItem) => {
+          navItem.classList.remove('open');
+          navItem.querySelector('.nav-link[data-dropdown]')?.setAttribute('aria-expanded', 'false');
+          navItem.querySelector('.dropdown')?.classList.remove('open');
+        });
+        navList?.classList.remove('active');
+        mobileToggle?.classList.remove('active');
+        mobileToggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
 
     // Close mobile menu when clicking outside
     document.addEventListener('click', (e) => {
       if (mobileToggle && navList && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
         mobileToggle.classList.remove('active');
         navList.classList.remove('active');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
+
+      if (!e.target.closest('.nav-item')) {
+        document.querySelectorAll('.nav-item.open').forEach((navItem) => {
+          navItem.classList.remove('open');
+          navItem.querySelector('.nav-link[data-dropdown]')?.setAttribute('aria-expanded', 'false');
+          navItem.querySelector('.dropdown')?.classList.remove('open');
+        });
       }
     });
 

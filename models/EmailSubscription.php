@@ -95,10 +95,11 @@ class EmailSubscription {
                     $emailBody .= "</small>";
                 }
 
+                $config = getMailConfig();
                 $headers = [
                     'From' => $config['from_address'],
                     'Content-Type' => $contentType === 'html' ? 'text/html; charset=UTF-8' : 'text/plain; charset=UTF-8',
-                    'Reply-To' => 'info@srcltu.edu.gh'
+                    'Reply-To' => $config['reply_to']
                 ];
 
                 if (sendEmail($subscriber['email'], $subject, $emailBody, $headers)) {
@@ -151,10 +152,11 @@ class EmailSubscription {
                     $emailBody .= "</small>";
                 }
 
+                $config = getMailConfig();
                 $headers = [
                     'From' => $config['from_address'],
                     'Content-Type' => $contentType === 'html' ? 'text/html; charset=UTF-8' : 'text/plain; charset=UTF-8',
-                    'Reply-To' => 'info@srcltu.edu.gh'
+                    'Reply-To' => $config['reply_to']
                 ];
 
                 if (sendEmail($email, $subject, $emailBody, $headers)) {
@@ -187,9 +189,17 @@ class EmailSubscription {
      * @return string
      */
     private function buildUnsubscribeUrl($token) {
-        $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-        $baseUrl .= '://' . $_SERVER['HTTP_HOST'];
-        $baseUrl = rtrim($baseUrl, '/');
+        $baseUrl = '';
+        if (function_exists('getAppUrl')) {
+            $url = getAppUrl();
+            if ($url) {
+                $baseUrl = rtrim($url, '/');
+            }
+        }
+        if (!$baseUrl) {
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $baseUrl = rtrim($protocol . '://' . $_SERVER['HTTP_HOST'], '/');
+        }
         
         return $baseUrl . '/api/email-subscribe.php?action=unsubscribe&token=' . $token;
     }

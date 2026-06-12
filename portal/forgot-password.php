@@ -30,7 +30,9 @@ if ($_POST) {
                 $updateStmt->execute([$tokenHash, $expires, $user['id']]);
                 
                 // Send email with reset link
-                $resetLink = "http://{$_SERVER['HTTP_HOST']}/SRC/portal/reset-password.php?token=" . urlencode($token);
+                $mailConfig = getMailConfig();
+                $appUrl = getAppUrl();
+                $resetLink = $appUrl . "/portal/reset-password.php?token=" . urlencode($token);
                 
                 $subject = "Password Reset Request - DHLTU SRC Portal";
                 $body = "
@@ -47,8 +49,9 @@ if ($_POST) {
                 ";
                 
                 $headers = [
-                    'From' => 'noreply@srcltu.edu.gh',
-                    'Content-Type' => 'text/html; charset=UTF-8'
+                    'From' => $mailConfig['from_address'],
+                    'Content-Type' => 'text/html; charset=UTF-8',
+                    'Reply-To' => $mailConfig['reply_to']
                 ];
                 
                 sendEmail($email, $subject, $body, $headers);

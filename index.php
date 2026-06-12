@@ -98,24 +98,31 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 <meta name="author" content="DHLTU SRC">
 <meta name="robots" content="index, follow">
 <meta name="language" content="English">
+<meta name="application-name" content="DHLTU SRC">
 <meta name="theme-color" content="#0A1628">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
+<meta property="og:locale" content="en_GH">
+<meta property="og:site_name" content="DHLTU SRC">
 <meta property="og:url" content="https://hltu.edu.gh/src/">
 <meta property="og:title" content="DHLTU SRC — Student Representative Council">
 <meta property="og:description" content="Official website of the Student Representative Council at Dr. Hilla Limann Technical University. Championing student rights and fostering excellence.">
 <meta property="og:image" content="https://hltu.edu.gh/src/assets/images/og-image.jpg">
+<meta property="og:image:alt" content="DHLTU SRC official website banner">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://hltu.edu.gh/src/">
+<meta property="twitter:site" content="@dhltu_src">
+<meta property="twitter:creator" content="@dhltu_src">
+<meta property="twitter:url" content="https://src2025.com/">
 <meta property="twitter:title" content="DHLTU SRC — Student Representative Council">
 <meta property="twitter:description" content="Official website of the Student Representative Council at Dr. Hilla Limann Technical University.">
-<meta property="twitter:image" content="https://hltu.edu.gh/src/assets/images/twitter-image.jpg">
+<meta property="twitter:image" content="https://src2025.com/assets/images/twitter-image.jpg">
+<meta property="twitter:image:alt" content="DHLTU SRC official website banner">
 
 <!-- Canonical URL -->
-<link rel="canonical" href="https://hltu.edu.gh/src/">
+<link rel="canonical" href="https://src2025.com/">
 
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="assets/images/logo.png">
@@ -127,8 +134,8 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "DHLTU SRC - Student Representative Council",
-  "url": "https://hltu.edu.gh/src/",
-  "logo": "https://hltu.edu.gh/src/assets/images/logo.png",
+  "url": "https://src2025.com/",
+  "logo": "https://src2025.com/assets/images/logo.png",
   "description": "Official Student Representative Council of Dr. Hilla Limann Technical University, championing student rights and fostering excellence.",
   "address": {
     "@type": "PostalAddress",
@@ -138,7 +145,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   },
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+233 (0) 393-XXX-XXX",
+    "telephone": "+233 (0)v 393-XXX-XXX",
     "email": "src@hltu.edu.gh",
     "contactType": "customer service"
   },
@@ -150,12 +157,14 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 }
 </script>
 
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <link rel="stylesheet" href="assets/css/main.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 
 
 
@@ -182,10 +191,14 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 
   <div class="hero-left">
     <div class="hero-tag reveal">Empowering Students Since 1992</div>
-    <h1 class="hero-title kinetic-title">
-      <em class="kinetic-text kinetic-out" data-text="Shaping">Shaping</em>
-      <span class="hero-title-bold kinetic-text kinetic-in" data-text="Tomorrow's">Tomorrow's</span>
-      <span class="kinetic-text kinetic-static" data-text="Leaders">Leaders</span>
+    <h1 class="hero-title kinetic-title ml1">
+      <span class="text-wrapper">
+        <span class="line line1"></span>
+        <span class="hero-word">Shaping</span>
+        <span class="hero-word hero-word-gold">Tomorrow's</span>
+        <span class="hero-word">Leaders</span>
+        <span class="line line2"></span>
+      </span>
     </h1>
     <p class="hero-title-sub reveal delay-2">SRC Management System</p>
   <p class="hero-desc reveal delay-3">
@@ -743,7 +756,13 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
       $icon = $icons[$index % count($icons)];
     ?>
     <div class="club-card reveal delay-<?php echo $index + 1; ?>">
-      <div class="club-emoji"><i class="bi <?php echo $icon; ?>"></i></div>
+      <div class="club-emoji">
+        <?php if (!empty($club['logo_path'])): ?>
+          <img src="<?php echo htmlspecialchars($club['logo_path']); ?>" alt="<?php echo htmlspecialchars($club['name']); ?> logo">
+        <?php else: ?>
+          <i class="bi <?php echo $icon; ?>"></i>
+        <?php endif; ?>
+      </div>
       <div class="club-name"><?php echo htmlspecialchars($club['name']); ?></div>
       <div class="club-members"><?php echo number_format($club['member_count']); ?> Members</div>
       <div class="club-tag"><?php echo htmlspecialchars($club['category'] ?: 'General'); ?></div>
@@ -959,9 +978,58 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     }
   }
    
-// Initialize kinetic typography
+  // Initialize kinetic typography
   initKineticTypography();
   
+  function initHeroAnimeText() {
+    if (!window.anime) return;
+
+    requestAnimationFrame(function() {
+      // Wrap every letter in a span
+      var textWrapper = document.querySelector('.ml1 .hero-word');
+      if (!textWrapper) return;
+
+      document.querySelectorAll('.ml1 .hero-word').forEach(function(word) {
+        word.innerHTML = word.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+      });
+
+      anime.timeline({loop: true})
+        .add({
+          targets: '.ml1',
+          opacity: 1,
+          duration: 1
+        })
+        .add({
+          targets: '.ml1 .hero-word .letter',
+          scale: [0.3,1],
+          opacity: [0,1],
+          translateZ: 0,
+          easing: "easeOutExpo",
+          duration: 600,
+          delay: (el, i) => 70 * (i+1)
+        }).add({
+          targets: '.ml1 .line',
+          scaleX: [0,1],
+          opacity: [0.5,1],
+          easing: "easeOutExpo",
+          duration: 700,
+          offset: '-=875',
+          delay: (el, i, l) => 80 * (l - i)
+        }).add({
+          targets: '.ml1',
+          opacity: 0,
+          duration: 1000,
+          easing: "easeOutExpo",
+          delay: 1000
+        });
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroAnimeText);
+  } else {
+    initHeroAnimeText();
+  }
+
   // Initialize council carousel
   function initCouncilCarousel() {
     const councilCards = document.querySelectorAll('.council-card');
@@ -1279,11 +1347,11 @@ tabs.forEach(tab => {
     document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
     
     // Hide header on scroll down, show on scroll up
-    if (window.scrollY > lastScrollY && window.scrollY > 100) {
-      // Scrolling down
+    const mobileNav = document.getElementById('navList');
+    const menuOpen = mobileNav?.classList.contains('active');
+    if (!menuOpen && window.scrollY > lastScrollY && window.scrollY > 100) {
       header.classList.add('hidden');
     } else {
-      // Scrolling up or at top
       header.classList.remove('hidden');
     }
     lastScrollY = window.scrollY;
@@ -1445,76 +1513,88 @@ tabs.forEach(tab => {
         }
     }
     
-    // ── Mobile Menu Toggle — always visible on mobile screens
+    // ── Mobile Header Dropdown
     const mobileToggle = document.querySelector('.mobile-toggle');
     const navList = document.querySelector('.nav-list');
-    const heroSection = document.getElementById('hero');
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
 
-   // Show toggle on mobile screens (≤900px)
-   if (mobileToggle && window.innerWidth <= 900) {
-     mobileToggle.style.display = 'flex';
-   }
+    const closeMobileDropdowns = () => {
+      document.querySelectorAll('.nav-item.open').forEach((item) => {
+        item.classList.remove('open');
+        const link = item.querySelector('.nav-link[data-dropdown]');
+        if (link) link.setAttribute('aria-expanded', 'false');
+      });
+      document.querySelectorAll('.dropdown.open').forEach((dropdown) => dropdown.classList.remove('open'));
+    };
 
-   if (heroSection && mobileToggle) {
-     const heroObserver = new IntersectionObserver((entries) => {
-       entries.forEach(entry => {
-         // Auto-close menu/drawer when scrolling past hero
-         if (!entry.isIntersecting && navList) {
-           navList.classList.remove('active');
-           if (mobileToggle) mobileToggle.classList.remove('active');
-           document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-         }
-       });
-     }, { threshold: 0.05 });
-     heroObserver.observe(heroSection);
-   }
-   
-   if (mobileToggle && navList) {
-     mobileToggle.addEventListener('click', () => {
-       mobileToggle.classList.toggle('active');
-       navList.classList.toggle('active');
-     });
-   }
+    const setMobileMenuOpen = (open) => {
+      if (!mobileToggle || !navList) return;
+      navList.classList.toggle('active', open);
+      mobileToggle.classList.toggle('active', open);
+      mobileToggle.setAttribute('aria-expanded', String(open));
+      document.body.classList.toggle('drawer-open', open && mobileQuery.matches);
+    };
 
-   // ── Close mobile menu when clicking outside
-   document.addEventListener('click', (e) => {
-     if (mobileToggle && navList && !mobileToggle.contains(e.target) && !navList.contains(e.target)) {
-       mobileToggle.classList.remove('active');
-       navList.classList.remove('active');
-     }
-   });
+    if (mobileToggle && navList) {
+      mobileToggle.addEventListener('click', () => {
+        setMobileMenuOpen(!navList.classList.contains('active'));
+      });
 
-   // ── Nav link click: close drawer on regular links;
-   //       toggle dropdown via class on mobile (avoids CSS :hover conflicts)
-   document.querySelectorAll('.nav-link').forEach(link => {
-     link.addEventListener('click', (e) => {
-       const navItem = link.parentElement;
-       const dropdown = navItem ? navItem.querySelector('.dropdown') : null;
+      document.addEventListener('click', (e) => {
+        if (!mobileQuery.matches || !navList.classList.contains('active')) return;
+        if (!e.target.closest('header')) setMobileMenuOpen(false);
+      });
 
-       if (dropdown && window.innerWidth <= 768) {
-         e.preventDefault();
-         // Close all other open dropdowns / nav-items
-         document.querySelectorAll('.dropdown.open').forEach(d => {
-           if (d !== dropdown) {
-             d.classList.remove('open');
-             d.closest('.nav-item')?.classList.remove('open');
-           }
-         });
-         // Toggle this one
-         dropdown.classList.toggle('open');
-         navItem?.classList.toggle('open');
-       } else {
-         // Regular link: close mobile menu
-         if (mobileToggle && navList) {
-           mobileToggle.classList.remove('active');
-           navList.classList.remove('active');
-           // Also close any open dropdowns
-           document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-           document.querySelectorAll('.nav-item.open').forEach(n => n.classList.remove('open'));
-         }
-       }
-     });
-   });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        setMobileMenuOpen(false);
+        closeMobileDropdowns();
+      });
+    }
+
+    document.querySelectorAll('.nav-link[data-dropdown]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        if (!mobileQuery.matches) return;
+
+        e.preventDefault();
+
+        const navItem = link.closest('.nav-item');
+        const dropdown = navItem?.querySelector('.dropdown');
+        if (!navItem || !dropdown) return;
+
+        const willOpen = !navItem.classList.contains('open');
+        closeMobileDropdowns();
+
+        navItem.classList.toggle('open', willOpen);
+        dropdown.classList.toggle('open', willOpen);
+        link.setAttribute('aria-expanded', String(willOpen));
+
+        if (willOpen) setMobileMenuOpen(true);
+      });
+    });
+
+    document.querySelectorAll('.nav-link:not([data-dropdown])').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (!mobileQuery.matches) return;
+        setMobileMenuOpen(false);
+        closeMobileDropdowns();
+      });
+    });
+
+    navList?.querySelectorAll('.dropdown-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        if (!mobileQuery.matches) return;
+        setMobileMenuOpen(false);
+        closeMobileDropdowns();
+      });
+    });
+
+    mobileQuery.addEventListener('change', (event) => {
+      if (!event.matches) {
+        setMobileMenuOpen(false);
+        closeMobileDropdowns();
+      }
+    });
 </script>
 </body>
 </html>

@@ -11,7 +11,10 @@ function loadEnv() {
             if (strpos(trim($line), '#') === 0) continue;
             if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
-                $_ENV[trim($key)] = trim($value);
+                $key = trim($key);
+                $value = trim($value);
+                $_ENV[$key] = $value;
+                putenv("$key=$value");
             }
         }
     }
@@ -22,23 +25,37 @@ loadEnv();
 
 function getMailConfig() {
     return [
-        'host' => $_ENV['MAIL_HOST'] ?? 'smtp.gmail.com',
-        'port' => $_ENV['MAIL_PORT'] ?? 587,
-        'username' => $_ENV['MAIL_USERNAME'] ?? '',
-        'password' => $_ENV['MAIL_PASSWORD'] ?? '',
-        'encryption' => $_ENV['MAIL_ENCRYPTION'] ?? 'tls',
-        'from_address' => $_ENV['MAIL_FROM_ADDRESS'] ?? 'noreply@srcltu.edu.gh',
-        'from_name' => $_ENV['MAIL_FROM_NAME'] ?? 'DHLTU SRC',
+        'host' => getenv('MAIL_HOST') ?: ($_ENV['MAIL_HOST'] ?? 'smtp.gmail.com'),
+        'port' => getenv('MAIL_PORT') ?: ($_ENV['MAIL_PORT'] ?? 587),
+        'username' => getenv('MAIL_USERNAME') ?: ($_ENV['MAIL_USERNAME'] ?? ''),
+        'password' => getenv('MAIL_PASSWORD') ?: ($_ENV['MAIL_PASSWORD'] ?? ''),
+        'encryption' => getenv('MAIL_ENCRYPTION') ?: ($_ENV['MAIL_ENCRYPTION'] ?? 'tls'),
+        'from_address' => getenv('MAIL_FROM_ADDRESS') ?: ($_ENV['MAIL_FROM_ADDRESS'] ?? 'noreply@src.com'),
+        'from_name' => getenv('MAIL_FROM_NAME') ?: ($_ENV['MAIL_FROM_NAME'] ?? 'DHLTU SRC'),
+        'reply_to' => getenv('MAIL_REPLY_TO') ?: ($_ENV['MAIL_REPLY_TO'] ?? 'info@src.com'),
     ];
 }
 
 function getDbConfig() {
     return [
-        'host' => $_ENV['DB_HOST'] ?? 'localhost',
-        'dbname' => $_ENV['DB_NAME'] ?? 'dhltusrc_db',
-        'username' => $_ENV['DB_USER'] ?? 'root',
-        'password' => $_ENV['DB_PASS'] ?? '',
+        'host' => getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'localhost'),
+        'dbname' => getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'dhltusrc_db'),
+        'username' => getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'root'),
+        'password' => getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? ''),
     ];
+}
+
+function getAppUrl() {
+    return rtrim(getenv('APP_URL') ?: ($_ENV['APP_URL'] ?? ''), '/');
+}
+
+function getAppEnv() {
+    return getenv('APP_ENV') ?: ($_ENV['APP_ENV'] ?? 'local');
+}
+
+function getAppBaseUrl() {
+    $url = getAppUrl();
+    return $url ? rtrim($url, '/') : '';
 }
 
 function sendEmailSMTP($to, $subject, $body, $headers = []) {
@@ -52,7 +69,7 @@ function sendEmailSMTP($to, $subject, $body, $headers = []) {
     $defaultHeaders = [
         'From' => $config['from_address'],
         'Content-Type' => 'text/html; charset=UTF-8',
-        'Reply-To' => 'info@srcltu.edu.gh'
+        'Reply-To' => $config['reply_to']
     ];
     $headers = array_merge($defaultHeaders, $headers);
     
@@ -131,7 +148,7 @@ function sendEmail($to, $subject, $body, $headers = []) {
     }
     
     $defaultHeaders = [
-        'From' => $config['from_address'] ?? 'noreply@srcltu.edu.gh',
+        'From' => $config['from_address'] ?? 'noreply@src.com',
         'Content-Type' => 'text/html; charset=UTF-8'
     ];
     $headers = array_merge($defaultHeaders, $headers);
