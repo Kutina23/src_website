@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['trackToken'])) {
 
         // ── Complaints ────────────────────────────────────
         $complaint = db()->fetch(
-            "SELECT subject, status, category, priority, created_at, description, resolution, resolved_at
+            "SELECT subject, status, category, priority, created_at, description, resolution, resolved_at, is_blocked, block_reason
              FROM complaints WHERE complaint_token = ?",
             [$trackToken]
         );
@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['trackToken'])) {
 
         // ── Document requests ─────────────────────────────
         if (!$complaint) {
-            $req = db()->fetch(
+$req = db()->fetch(
                 "SELECT dr.*, u.first_name, u.last_name, u.student_id, u.email
                  FROM document_requests dr
-                 JOIN users u ON dr.user_id = u.id
+                 LEFT JOIN users u ON dr.user_id = u.id
                  WHERE dr.request_token = ?",
                 [$trackToken]
             );
@@ -178,6 +178,19 @@ function statusBadgeEl($stMap, $status) {
                         <?php echo statusBadgeEl($stMap, $complaint['status']); ?>
                     </div>
 
+                    <?php if (!empty($complaint['is_blocked'])): ?>
+                    <div style="padding:20px 22px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:12px;margin-bottom:22px;display:flex;gap:14px;align-items:flex-start;">
+                        <div style="width:42px;height:42px;border-radius:50%;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-shield-slash-fill" style="color:var(--accent-red);font-size:20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent-red);font-size:15px;margin-bottom:4px;">This Complaint Has Been Blocked</div>
+                            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><?php echo htmlspecialchars(urldecode($complaint['block_reason'] ?? 'No reason provided.')); ?></div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">You can no longer update or track this submission.</div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+
                     <!-- Complaints 4-step lifecycle -->
                     <div class="track-lifecycle">
                         <?php
@@ -256,6 +269,7 @@ function statusBadgeEl($stMap, $status) {
                             <i class="bi bi-calendar-event"></i> Resolved <?php echo formatDateTime($complaint['resolved_at']); ?>
                         </div>
                     <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
@@ -271,6 +285,19 @@ function statusBadgeEl($stMap, $status) {
                         </div>
                         <?php echo statusBadgeEl($sMap, $req['status']); ?>
                     </div>
+
+                    <?php if (!empty($req['is_blocked'])): ?>
+                    <div style="padding:20px 22px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:12px;margin-bottom:22px;display:flex;gap:14px;align-items:flex-start;">
+                        <div style="width:42px;height:42px;border-radius:50%;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="bi bi-shield-slash-fill" style="color:var(--accent-red);font-size:20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent-red);font-size:15px;margin-bottom:4px;">This Document Request Has Been Blocked</div>
+                            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;"><?php echo htmlspecialchars(urldecode($req['block_reason'] ?? 'No reason provided.')); ?></div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">You can no longer track or update this request.</div>
+                        </div>
+                    </div>
+                    <?php else: ?>
 
                     <!-- Document 4-stage pipeline -->
                     <div class="track-lifecycle">
@@ -322,11 +349,22 @@ function statusBadgeEl($stMap, $status) {
                         </div>
                         <div class="tc-meta">
                             <div class="tc-meta-label">Applicant</div>
-                            <div class="tc-meta-value"><?php echo htmlspecialchars(trim(($req['first_name'] ?? "") . " " . ($req['last_name'] ?? ""))); ?></div>
+                            <div class="tc-meta-value">
+                                <?php
+                                    $applicantName = trim(($req['first_name'] ?? '') . ' ' . ($req['last_name'] ?? ''));
+                                    if (!$applicantName) $applicantName = $req['guest_full_name'] ?? '—';
+                                    echo htmlspecialchars($applicantName);
+                                ?>
+                            </div>
                         </div>
                         <div class="tc-meta">
                             <div class="tc-meta-label">Student ID</div>
-                            <div class="tc-meta-value"><?php echo htmlspecialchars($req['student_id'] ?? "—"); ?></div>
+                            <div class="tc-meta-value">
+                                <?php
+                                    $sid = $req['student_id'] ?? $req['guest_student_id'] ?? '—';
+                                    echo htmlspecialchars($sid);
+                                ?>
+                            </div>
                         </div>
                         <div class="tc-meta">
                             <div class="tc-meta-label">Requested</div>
@@ -376,6 +414,7 @@ function statusBadgeEl($stMap, $status) {
                             If you have questions, please contact the SRC Secretariat.
                         <?php endif; ?>
                     </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 

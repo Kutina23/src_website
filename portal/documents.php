@@ -103,6 +103,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: documents.php?" . http_build_query($_GET));
         exit;
     }
+
+    if ($action === "block_request") {
+        $id     = (int)($_POST["doc_request_id"] ?? 0);
+        $reason = trim($_POST["block_reason"] ?? "");
+        if ($id > 0 && $reason !== "") {
+            $model->blockRequest($id, $reason);
+            logActivity("doc_request_blocked", $_SESSION["user_id"], ["doc_request_id" => $id]);
+            $_SESSION["success"] = "Document request blocked";
+        }
+        header("Location: documents.php?" . http_build_query($_GET));
+        exit;
+    }
+
+    if ($action === "unblock_request") {
+        $id = (int)($_POST["doc_request_id"] ?? 0);
+        if ($id > 0) {
+            $model->unblockRequest($id);
+            logActivity("doc_request_unblocked", $_SESSION["user_id"], ["doc_request_id" => $id]);
+            $_SESSION["success"] = "Document request unblocked";
+        }
+        header("Location: documents.php?" . http_build_query($_GET));
+        exit;
+    }
+
+    if ($action === "delete_request") {
+        $id = (int)($_POST["doc_request_id"] ?? 0);
+        if ($id > 0) {
+            $model->deleteRequest($id);
+            logActivity("doc_request_deleted", $_SESSION["user_id"], ["doc_request_id" => $id]);
+            $_SESSION["success"] = "Document request deleted permanently";
+        }
+        header("Location: documents.php?" . http_build_query($_GET));
+        exit;
+    }
 }
 
 $reqMap = [];
@@ -265,21 +299,36 @@ foreach ($requests as $r) {
                                         </td>
                                         <td>
                                             <div class="user-name">
-                                                <?php echo htmlspecialchars(trim(($r["first_name"]??"") . " " . ($r["last_name"]??""))); ?>
+                                                <?php echo htmlspecialchars(trim((($r["first_name"]??"") . " " . ($r["last_name"]??"")) ?: ($r["guest_full_name"] ?? "—"))); ?>
                                             </div>
-                                            <div class="user-email">
-                                                <?php echo htmlspecialchars($r["student_id"] ?? $r["email"] ?? "—"); ?>
-                                            </div>
+<div class="user-email">
+                                                 <?php echo htmlspecialchars($r["student_id"] ?? $r["guest_student_id"] ?? $r["guest_email"] ?? "—"); ?>
+                                             </div>
                                         </td>
                                         <td><span class="badge badge-role"><?php echo htmlspecialchars($r["document_type"]); ?></span></td>
                                         <td><span class="user-email"><?php echo htmlspecialchars(truncate($r["purpose"] ?? "", 55)); ?></span></td>
                                         <td><span class="badge <?php echo $stCls; ?>"><?php echo str_replace("_"," ",$st); ?></span></td>
                                         <td><?php echo timeAgo($r["requested_at"]); ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline" style="padding:4px 9px;"
-                                                    onclick="openDetail(<?php echo (int)$r['id']; ?>)" title="View / Update">
+                                            <button class="btn btn-sm btn-outline" style="padding:4px 9px;" onclick="openDetail(<?php echo (int)$r['id']; ?>)" title="View / Update">
                                                 <i class="bi bi-eye-fill"></i>
                                             </button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this request permanently?');">
+                                                <input type="hidden" name="action" value="delete_request">
+                                                <input type="hidden" name="doc_request_id" value="<?php echo (int)$r['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline" style="padding:4px 9px;color:var(--accent-red);border-color:var(--accent-red);" title="Delete">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                            <?php if (!empty($r["is_blocked"])): ?>
+                                                <button class="btn btn-sm btn-outline" style="padding:4px 9px;color:var(--gold);border-color:var(--gold);" onclick="openUnblockModal(<?php echo (int)$r['id']; ?>)" title="Unblock">
+                                                    <i class="bi bi-unlock-fill"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <button class="btn btn-sm btn-outline" style="padding:4px 9px;color:#ef4444;border-color:#ef4444;" onclick="openBlockModal(<?php echo (int)$r['id']; ?>)" title="Block">
+                                                    <i class="bi bi-ban-fill"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -301,6 +350,32 @@ foreach ($requests as $r) {
         </div>
     </div>
 
+    <!-- Block Reason Modal -->
+    <div id="blockModal"
+         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;"
+         onclick="if(event.target===this)closeBlockModal()">
+        <div style="background:#fff;border-radius:14px;max-width:480px;width:92%;box-shadow:0 25px 60px rgba(0,0,0,0.25);">
+            <div style="padding:18px 22px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-shield-slash-fill" style="color:var(--accent-red);font-size:17px;"></i>
+                </div>
+                <h3 style="margin:0;font-family:var(--font-display);font-size:17px;">Block Document Request</h3>
+            </div>
+            <div style="padding:20px 22px;">
+                <p style="margin:0 0 14px;font-size:14px;color:var(--text-secondary);line-height:1.6;">
+                    Enter the reason the requester will see when tracking. This message should explain why the request has been blocked.
+                </p>
+                <textarea id="blockReasonText" class="form-input" rows="4" placeholder="e.g. This request was found to contain false documentation and violates the portal’s terms of use." style="width:100%;resize:vertical;font-size:14px;"></textarea>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+                    <button onclick="closeBlockModal()" class="btn btn-outline" style="margin-bottom:0;">Cancel</button>
+                    <button onclick="submitBlockRequest()" class="btn btn-primary" style="margin-bottom:0;background:var(--accent-red);border-color:var(--accent-red);">
+                        <i class="bi bi-slash-circle"></i> Block Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ── JS inline: data maps from PHP ──────────────────── -->
     <script>
     const REQUEST_DATA = {};
@@ -314,10 +389,10 @@ foreach ($requests as $r) {
         purpose:        <?php echo json_encode($r["purpose"] ?? ""); ?>,
         remarks:        <?php echo json_encode($r["remarks"] ?? ""); ?>,
         status:         <?php echo json_encode($r["status"]); ?>,
-        student_id:     <?php echo json_encode($r["student_id"] ?? ""); ?>,
+        student_id:     <?php echo json_encode($r["student_id"] ?? $r["guest_student_id"] ?? ""); ?>,
         first_name:     <?php echo json_encode($r["first_name"] ?? ""); ?>,
         last_name:      <?php echo json_encode($r["last_name"] ?? ""); ?>,
-        email:          <?php echo json_encode($r["email"] ?? ""); ?>,
+        email:          <?php echo json_encode($r["email"] ?? $r["guest_email"] ?? ""); ?>,
         role:           <?php echo json_encode($r["role"] ?? ""); ?>,
         requested_at:   <?php echo json_encode($r["requested_at"]); ?>,
         processed_at:   <?php echo json_encode($r["processed_at"] ?? null); ?>,
@@ -325,7 +400,9 @@ foreach ($requests as $r) {
         rejection_reason:<?php echo json_encode($r["remarks"] ?? ""); ?>,
         rejection_remark:<?php echo json_encode($r["remarks"] ?? ""); ?>,
         processed_first: <?php echo json_encode($r["processed_first"] ?? ""); ?>,
-        processed_last:  <?php echo json_encode($r["processed_last"] ?? ""); ?>
+        processed_last:  <?php echo json_encode($r["processed_last"] ?? ""); ?>,
+        is_blocked:       <?php echo json_encode($r["is_blocked"] ?? false); ?>,
+        block_reason:     <?php echo json_encode($r["block_reason"] ?? ""); ?>
     };
     </script>
     <?php endforeach; ?>
@@ -497,11 +574,18 @@ foreach ($requests as $r) {
             .replace('id="dm-rem-text">',         'id="dm-rem-text">');
 
         // Fill data
+        // Handle guest vs registered user display
+        var displayName = ((c.first_name || '') + ' ' + (c.last_name || '')).trim() || c.guest_full_name || '—';
+        var displayStudentId = c.student_id || c.guest_student_id || '—';
+        var displayEmail = c.email || c.guest_email || '—';
+
         html = html
             .replace('id="dm-token"',             'id="dm-token"')   // no-op: filled by next step
             .replace('>—</code>',                 '>' + c.request_token + '</code>')
             .replace('id="dm-requested-at">—</span>', 'id="dm-requested-at">' + rAt + '</span>')
-            .replace('id="dm-student-name"></div>',  'id="dm-student-name">' + (c.first_name || '') + ' ' + (c.last_name || '') + roleHtml + '</div>')
+            .replace('id="dm-student-name"></div>',  'id="dm-student-name">' + displayName + roleHtml + '</div>')
+            .replace('id="dm-student-id">',       'id="dm-student-id">' + displayStudentId + '</span>')
+            .replace('id="dm-student-email">',     'id="dm-student-email">' + displayEmail + '</span>')
             .replace('id="dm-doc-type"></span>',     'id="dm-doc-type">' + c.document_type + '</span>')
             .replace('id="dm-status">',              'id="dm-status">' + stPillHtml + '</span>')
 
@@ -553,6 +637,43 @@ foreach ($requests as $r) {
     function HTML_esc(s) {
         if (!s) return '';
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function openBlockModal(id) {
+        var modal = document.getElementById('blockModal');
+        if (!modal) return;
+        modal.dataset.docRequestId = id;
+        modal.style.display = 'flex';
+        setTimeout(function() {
+            var ta = document.getElementById('blockReasonText');
+            if (ta) { ta.value = ''; ta.focus(); }
+        }, 50);
+    }
+    function closeBlockModal() {
+        var modal = document.getElementById('blockModal');
+        if (modal) modal.style.display = 'none';
+    }
+    function submitBlockRequest() {
+        var id = parseInt(document.getElementById('blockModal').dataset.docRequestId, 10);
+        var ta = document.getElementById('blockReasonText');
+        var reason = ta ? ta.value : '';
+        if (!reason.trim()) { if (ta) ta.focus(); return; }
+        var f = document.createElement('form');
+        f.method = 'POST'; f.action = '';
+        var actionInput = document.createElement('input'); actionInput.type='hidden'; actionInput.name='action'; actionInput.value='block_request'; f.appendChild(actionInput);
+        var idInput = document.createElement('input'); idInput.type='hidden'; idInput.name='doc_request_id'; idInput.value=id; f.appendChild(idInput);
+        var reasonInput = document.createElement('input'); reasonInput.type='hidden'; reasonInput.name='block_reason'; reasonInput.value=reason; f.appendChild(reasonInput);
+        document.body.appendChild(f); f.submit();
+    }
+
+    function openUnblockModal(id) {
+        if (!confirm('Remove the block on this document request? The requester will regain access to tracking.')) return;
+        var f = document.createElement('form');
+        f.method = 'POST'; f.action = '';
+        ['action=unblock_request','doc_request_id='+id].forEach(function(p){
+            var i = document.createElement('input'); i.type='hidden'; i.name=p.split('=')[0]; i.value=p.split('=')[1]; f.appendChild(i);
+        });
+        document.body.appendChild(f); f.submit();
     }
 
     function closeDetail() { document.getElementById('detailModal').style.display = 'none'; }

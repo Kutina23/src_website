@@ -100,6 +100,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: complaints.php?" . http_build_query($_GET));
         exit;
     }
+
+    if ($action === "block_complaint") {
+        $id     = (int)($_POST["complaint_id"] ?? 0);
+        $reason = trim($_POST["block_reason"] ?? "");
+        if ($id > 0 && $reason !== "") {
+            $model->blockComplaint($id, $reason);
+            logActivity("complaint_blocked", $_SESSION["user_id"], ["complaint_id" => $id]);
+            $_SESSION["success"] = "Complaint blocked";
+        }
+        header("Location: complaints.php?" . http_build_query($_GET));
+        exit;
+    }
+
+    if ($action === "unblock_complaint") {
+        $id = (int)($_POST["complaint_id"] ?? 0);
+        if ($id > 0) {
+            $model->unblockComplaint($id);
+            logActivity("complaint_unblocked", $_SESSION["user_id"], ["complaint_id" => $id]);
+            $_SESSION["success"] = "Complaint unblocked";
+        }
+        header("Location: complaints.php?" . http_build_query($_GET));
+        exit;
+    }
+
+    if ($action === "delete_complaint") {
+        $id = (int)($_POST["complaint_id"] ?? 0);
+        if ($id > 0) {
+            $model->deleteComplaint($id);
+            logActivity("complaint_deleted", $_SESSION["user_id"], ["complaint_id" => $id]);
+            $_SESSION["success"] = "Complaint deleted permanently";
+        }
+        header("Location: complaints.php?" . http_build_query($_GET));
+        exit;
+    }
 }
 
 // Build lookup maps for the complaint array
@@ -298,10 +332,22 @@ foreach ($complaints as $c) {
                                         </td>
                                         <td><?php echo timeAgo($c["created_at"]); ?></td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline" style="padding:4px 9px;"
-                                                    onclick="openDetail(<?php echo (int)$c['id']; ?>)" title="View / Update">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this complaint permanently?');">
+                                                <input type="hidden" name="action" value="delete_complaint">
+                                                <input type="hidden" name="complaint_id" value="<?php echo (int)$c['id']; ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline" style="padding:4px 9px;color:var(--accent-red);border-color:var(--accent-red);" title="Delete">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                            <?php if (!empty($c["is_blocked"])): ?>
+                                                <button class="btn btn-sm btn-outline" style="padding:4px 9px;color:var(--gold);border-color:var(--gold);" onclick="openUnblockModal(<?php echo (int)$c['id']; ?>)" title="Unblock">
+                                                    <i class="bi bi-unlock-fill"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <button class="btn btn-sm btn-outline" style="padding:4px 9px;color:#ef4444;border-color:#ef4444;" onclick="openBlockModal(<?php echo (int)$c['id']; ?>)" title="Block">
+                                                    <i class="bi bi-ban-fill"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -319,6 +365,32 @@ foreach ($complaints as $c) {
          style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;"
          onclick="if(event.target===this)closeDetail()">
         <div id="dialog-content" style="background:#fff;border-radius:14px;max-width:700px;width:100%;margin-top:40px;box-shadow:0 25px 60px rgba(0,0,0,0.25);"><!-- injected by JS --></div>
+    </div>
+
+    <!-- Block Reason Modal -->
+    <div id="blockModal"
+         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1200;align-items:center;justify-content:center;"
+         onclick="if(event.target===this)closeBlockModal()">
+        <div style="background:#fff;border-radius:14px;max-width:480px;width:92%;box-shadow:0 25px 60px rgba(0,0,0,0.25);">
+            <div style="padding:18px 22px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-shield-slash-fill" style="color:var(--accent-red);font-size:17px;"></i>
+                </div>
+                <h3 style="margin:0;font-family:var(--font-display);font-size:17px;">Block Complaint</h3>
+            </div>
+            <div style="padding:20px 22px;">
+                <p style="margin:0 0 14px;font-size:14px;color:var(--text-secondary);line-height:1.6;">
+                    Enter the reason the complainant will see when tracking. This message should explain why the submission has been blocked.
+                </p>
+                <textarea id="blockReasonText" class="form-input" rows="4" placeholder="e.g. This complaint contains inappropriate language and violates community guidelines." style="width:100%;resize:vertical;font-size:14px;"></textarea>
+                <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+                    <button onclick="closeBlockModal()" class="btn btn-outline" style="margin-bottom:0;">Cancel</button>
+                    <button onclick="submitBlockComplaint()" class="btn btn-primary" style="margin-bottom:0;background:var(--accent-red);border-color:var(--accent-red);">
+                        <i class="bi bi-slash-circle"></i> Block Submission
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JS data arrays ─ placed OUTSIDE the modal container ── -->
@@ -341,7 +413,9 @@ foreach ($complaints as $c) {
         assigned_first:   <?php echo json_encode($c["assigned_first"] ?? ""); ?>,
         assigned_last:    <?php echo json_encode($c["assigned_last"] ?? ""); ?>,
         created_at:       <?php echo json_encode($c["created_at"]); ?>,
-        resolved_at:      <?php echo json_encode($c["resolved_at"] ?? null); ?>
+        resolved_at:      <?php echo json_encode($c["resolved_at"] ?? null); ?>,
+        is_blocked:       <?php echo json_encode($c["is_blocked"] ?? false); ?>,
+        block_reason:     <?php echo json_encode($c["block_reason"] ?? ""); ?>
     };
     </script>
     <?php endforeach; ?>
@@ -502,6 +576,43 @@ foreach ($complaints as $c) {
 
     function closeModal() {
         document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function openBlockModal(id) {
+        var modal = document.getElementById('blockModal');
+        if (!modal) return;
+        modal.dataset.complaintId = id;
+        modal.style.display = 'flex';
+        setTimeout(function() {
+            var ta = document.getElementById('blockReasonText');
+            if (ta) { ta.value = ''; ta.focus(); }
+        }, 50);
+    }
+    function closeBlockModal() {
+        var modal = document.getElementById('blockModal');
+        if (modal) modal.style.display = 'none';
+    }
+    function submitBlockComplaint() {
+        var id = parseInt(document.getElementById('blockModal').dataset.complaintId, 10);
+        var ta = document.getElementById('blockReasonText');
+        var reason = ta ? ta.value : '';
+        if (!reason.trim()) { if (ta) ta.focus(); return; }
+        var f = document.createElement('form');
+        f.method = 'POST'; f.action = '';
+        var actionInput = document.createElement('input'); actionInput.type='hidden'; actionInput.name='action'; actionInput.value='block_complaint'; f.appendChild(actionInput);
+        var idInput = document.createElement('input'); idInput.type='hidden'; idInput.name='complaint_id'; idInput.value=id; f.appendChild(idInput);
+        var reasonInput = document.createElement('input'); reasonInput.type='hidden'; reasonInput.name='block_reason'; reasonInput.value=reason; f.appendChild(reasonInput);
+        document.body.appendChild(f); f.submit();
+    }
+
+    function openUnblockModal(id) {
+        if (!confirm('Remove the block on this complaint? The complainant will regain access to tracking.')) return;
+        var f = document.createElement('form');
+        f.method = 'POST'; f.action = '';
+        ['action=unblock_complaint','complaint_id='+id].forEach(function(p){
+            var i = document.createElement('input'); i.type='hidden'; i.name=p.split('=')[0]; i.value=p.split('=')[1]; f.appendChild(i);
+        });
+        document.body.appendChild(f); f.submit();
     }
     </script>
 

@@ -43,7 +43,10 @@
     </div>
   </div>
 <div class="marketplace-hero-image">
-     <img src="assets/images/banner.png" alt="Students shopping">
+      <picture>
+        <source srcset="assets/images/banner.webp" type="image/webp">
+        <img src="assets/images/banner.png" alt="Students shopping">
+      </picture>
    </div>
 </section>
 
@@ -137,7 +140,7 @@
          foreach ($products as $index => $product): ?>
         <div class="product-card reveal delay-<?php echo ($index % 3) + 1; ?>" data-category="<?php echo $product['category']; ?>">
           <div class="product-image">
-            <img src="assets/images/products/<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>" onerror="this.src='assets/images/banner.png'">
+             <img src="assets/images/products/<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>" onerror="this.src='assets/images/banner.webp'">
           </div>
           <div class="product-info">
             <h3 class="product-name"><?php echo $product['name']; ?></h3>
@@ -171,7 +174,7 @@
     <div class="trending-carousel">
       <?php foreach (array_slice($products, 0, 6) as $product): ?>
       <div class="trending-card" data-category="<?php echo $product['category']; ?>">
-        <img src="assets/images/products/<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>" onerror="this.src='assets/images/banner.png'">
+        <img src="assets/images/products/<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>" onerror="this.src='assets/images/banner.webp'">
         <div><?php echo $product['name']; ?></div>
         <small><?php echo $product['price']; ?></small>
       </div>
@@ -221,7 +224,7 @@
       ];
       foreach ($vendors as $vendor): ?>
       <div class="vendor-card reveal">
-        <img src="assets/images/vendors/<?php echo $vendor['image']; ?>" alt="<?php echo $vendor['name']; ?>" class="vendor-image" onerror="this.src='assets/images/banner.png'">
+        <img src="assets/images/vendors/<?php echo $vendor['image']; ?>" alt="<?php echo $vendor['name']; ?>" class="vendor-image" onerror="this.src='assets/images/banner.webp'">
         <div class="vendor-info">
           <h3><?php echo $vendor['name']; ?></h3>
           <p><?php echo $vendor['desc']; ?></p>

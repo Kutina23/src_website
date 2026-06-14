@@ -5,7 +5,10 @@
   <!-- TOP BAR — Logo + School Name -->
   <div class="top-bar">
     <div class="top-bar-logo">
-      <img src="assets/images/logo.png" alt="SRC Logo" style="height:100%;object-fit:contain;">
+      <picture>
+        <source srcset="assets/images/logo.webp" type="image/webp">
+        <img src="assets/images/logo.png" alt="SRC Logo" style="height:100%;object-fit:contain;">
+      </picture>
     </div>
     <div class="top-bar-text">
       <div class="top-bar-school">STUDENT REPRESENTATIVE COUNCIL</div>
@@ -129,4 +132,4 @@
     </div>
   </nav>
 </header>
-<script src="assets/js/navigation.js"></script>
+<script defer src="assets/js/navigation.js"></script>

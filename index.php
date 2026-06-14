@@ -78,11 +78,11 @@ if (empty($presidentPostfix)) {
 // Local fallback collections when DB returns no gallery rows
 $fallbackGallery = [
   ['file_path' => 'https://picsum.photos/seed/dean/800/600',       'alt_text' => 'SRC General Assembly', 'caption' => 'Governance'],
-  ['file_path' => 'assets/images/logo.png',                        'alt_text' => 'Cultural Night',        'caption' => 'Culture'],
-  ['file_path' => 'assets/images/logo.png',                        'alt_text' => 'Graduation Day',        'caption' => 'Academics'],
+  ['file_path' => 'assets/images/logo.webp',                        'alt_text' => 'Cultural Night',        'caption' => 'Culture'],
+  ['file_path' => 'assets/images/logo.webp',                        'alt_text' => 'Graduation Day',        'caption' => 'Academics'],
   ['file_path' => 'https://picsum.photos/seed/president/800/600',  'alt_text' => 'Sports Day',            'caption' => 'Sports'],
   ['file_path' => 'https://picsum.photos/seed/dean/800/600',       'alt_text' => 'SRC Elections',         'caption' => 'Democracy'],
-];
+  ];
 // Footer Session Year: use council term if available, else settings
 $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 1);
 ?><!DOCTYPE html>
@@ -161,10 +161,9 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="assets/css/main.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 
 
 
@@ -174,7 +173,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 <div class="scroll-progress"><div class="scroll-progress-bar" id="scrollBar"></div></div>
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button class="back-top" id="backTop" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;">↑</button>
 
 <?php include 'include/header.php'; ?>
 
@@ -183,9 +182,9 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
       SECTION 1 — HERO
 ══════════════════════════════════ -->
 <section class="section" id="hero">
-  <div class="hero-bg-grid"></div>
-  <div class="hero-orb hero-orb-1"></div>
-  <div class="hero-orb hero-orb-2"></div>
+<div class="hero-bg-grid" aria-hidden="true"></div>
+<div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+<div class="hero-orb hero-orb-2" aria-hidden="true"></div>
 
   <div class="hero-left">
     <div class="hero-tag reveal">Empowering Students Since 1992</div>
@@ -198,7 +197,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
         <span class="line line2"></span>
       </span>
     </h1>
-    <p class="hero-title-sub reveal delay-2">SRC Management System</p>
+    <p class="hero-title-sub reveal delay-2">Student Representative Council <br> Dr. Hilla Limann Technical University</p>
   <p class="hero-desc reveal delay-3">
     A unified digital platform for the Student Representative Council of Dr. Hilla Limann Technical University — managing elections, welfare, clubs, events, and student advocacy with transparency and excellence.
   </p>
@@ -250,15 +249,15 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
         </div>
       </div>
       
-      <div class="about-pattern"></div>
-      <div class="hero-corner tl"></div>
-      <div class="hero-corner tr"></div>
-      <div class="hero-corner bl"></div>
-      <div class="hero-corner br"></div>
+      <div class="about-pattern" aria-hidden="true"></div>
+      <div class="hero-corner tl" aria-hidden="true"></div>
+      <div class="hero-corner tr" aria-hidden="true"></div>
+      <div class="hero-corner bl" aria-hidden="true"></div>
+      <div class="hero-corner br" aria-hidden="true"></div>
     </div>
     <!-- Floating Badge Above Image -->
     <div class="hero-floating-badge">
-      <div class="badge-dot"></div>
+      <div class="badge-dot" aria-hidden="true"></div>
       <div class="badge-text">
         <strong>Portal Active</strong>
         <span><?php echo $siteSettings['session']; ?> Academic Year</span>
@@ -309,7 +308,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   <div class="about-visual reveal-right delay-2">
     <div class="about-img-main" style="position:relative;overflow:hidden;">
       <!-- President Image as Background -->
-      <img src="<?php echo htmlspecialchars($presidentImageSrc); ?>" alt="SRC President" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;">
+      <img src="<?php echo htmlspecialchars($presidentImageSrc); ?>" alt="SRC President" loading="lazy" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;">
       
       
     </div>
@@ -365,7 +364,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     ?>
     <div class="council-card reveal delay-<?php echo $index + 1; ?>" data-index="<?php echo $index; ?>">
       <div class="council-avatar" data-initials="<?php echo $initials; ?>">
-        <img src="<?php echo $imageSrc; ?>" alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>" class="active" onerror="this.src='https://picsum.photos/seed/member-<?php echo $index; ?>/400/500';this.onerror=null;">
+        <img src="<?php echo $imageSrc; ?>" alt="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>" loading="lazy" class="active" onerror="this.src='https://picsum.photos/seed/member-<?php echo $index; ?>/400/500';this.onerror=null;">
         <div class="council-overlay"></div>
         <div class="council-avatar-inner"><?php echo $initials; ?></div>
       </div>
@@ -395,7 +394,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
          <div class="service-num"><?php echo sprintf('%02d', $index + 1); ?></div>
          <?php if (!empty($project['image_path'])): ?>
            <div class="project-image-wrap">
-             <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>">
+              <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>" loading="lazy">
            </div>
          <?php else: ?>
            <div class="service-icon-wrap">
@@ -476,7 +475,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
        $displayImages = !empty($galleryImages) ? $galleryImages : $fallbackGallery;
        foreach ($displayImages as $index => $image): ?>
        <div class="gallery-item reveal delay-<?php echo min($index + 1, 5); ?>">
-         <img src="<?php echo htmlspecialchars($image['file_path']); ?>" alt="<?php echo htmlspecialchars($image['alt_text']); ?>" class="gallery-image active">
+          <img src="<?php echo htmlspecialchars($image['file_path']); ?>" alt="<?php echo htmlspecialchars($image['alt_text']); ?>" loading="lazy" class="gallery-image active">
          <div class="gallery-overlay">
            <div class="gallery-overlay-tag"><?php echo htmlspecialchars($image['caption'] ?: 'Gallery'); ?></div>
            <div class="gallery-overlay-title"><?php echo htmlspecialchars($image['alt_text'] ?: 'Campus Moment'); ?></div>
@@ -756,7 +755,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
     <div class="club-card reveal delay-<?php echo $index + 1; ?>">
       <div class="club-emoji">
         <?php if (!empty($club['logo_path'])): ?>
-          <img src="<?php echo htmlspecialchars($club['logo_path']); ?>" alt="<?php echo htmlspecialchars($club['name']); ?> logo">
+          <img src="<?php echo htmlspecialchars($club['logo_path']); ?>" alt="<?php echo htmlspecialchars($club['name']); ?> logo" loading="lazy">
         <?php else: ?>
           <i class="bi <?php echo $icon; ?>"></i>
         <?php endif; ?>
@@ -917,9 +916,11 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   </div>
 </section>
 
-<div class="cinematic-divider"></div>
+<div class="cinematic-divider" aria-hidden="true"></div>
 
 <?php include 'include/footer.php'; ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js" defer></script>
 
 <script>
   // ── Kinetic Typography - Subtle Character Animation

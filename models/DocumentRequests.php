@@ -9,11 +9,11 @@ class DocumentRequests {
     // ── Listing & Search ──────────────────────────────────
 
     public function getAll($filters = []) {
-        $sql = "SELECT dr.*,
+$sql = "SELECT dr.*,
                        u.first_name, u.last_name, u.email, u.student_id, u.role_id, r.name as role,
                        p1.first_name as processed_first, p1.last_name as processed_last
                 FROM document_requests dr
-                JOIN users u ON dr.user_id = u.id
+                LEFT JOIN users u ON dr.user_id = u.id
                 LEFT JOIN roles r ON u.role_id = r.id
                 LEFT JOIN users p1 ON dr.processed_by = p1.id
                 WHERE 1=1";
@@ -31,8 +31,12 @@ class DocumentRequests {
 
         if (!empty($filters['search'])) {
             $sql .= " AND (u.first_name LIKE ? OR u.last_name LIKE ?
-                             OR u.student_id LIKE ? OR dr.request_token LIKE ?
-                             OR dr.document_type LIKE ? OR dr.purpose LIKE ?)";
+                             OR COALESCE(u.student_id, dr.guest_student_id) LIKE ?
+                             OR dr.request_token LIKE ?
+                             OR dr.document_type LIKE ? OR dr.purpose LIKE ?
+                             OR dr.guest_full_name LIKE ? OR dr.guest_email LIKE ?)";
+            $params[] = "%{$filters['search']}%";
+            $params[] = "%{$filters['search']}%";
             $params[] = "%{$filters['search']}%";
             $params[] = "%{$filters['search']}%";
             $params[] = "%{$filters['search']}%";
@@ -52,7 +56,7 @@ class DocumentRequests {
                     r.name as role,
                     p1.first_name as processed_first, p1.last_name as processed_last
              FROM document_requests dr
-             JOIN users u ON dr.user_id = u.id
+             LEFT JOIN users u ON dr.user_id = u.id
              LEFT JOIN roles r ON u.role_id = r.id
              LEFT JOIN users p1 ON dr.processed_by = p1.id
              WHERE dr.id = ?",
@@ -92,6 +96,26 @@ class DocumentRequests {
             'remarks'    => $remarks,
             'updated_at' => date('Y-m-d H:i:s')
         ], ['id' => $id]);
+    }
+
+    public function blockRequest($id, $reason) {
+        return $this->db->update('document_requests', [
+            'is_blocked'   => true,
+            'block_reason' => $reason,
+            'updated_at'   => date('Y-m-d H:i:s')
+        ], ['id' => $id]);
+    }
+
+    public function unblockRequest($id) {
+        return $this->db->update('document_requests', [
+            'is_blocked'   => false,
+            'block_reason' => null,
+            'updated_at'   => date('Y-m-d H:i:s')
+        ], ['id' => $id]);
+    }
+
+    public function deleteRequest($id) {
+        return $this->db->delete('document_requests', ['id' => $id]);
     }
 
     public function updateStatus($id, $status, $remarks = null) {

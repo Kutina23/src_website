@@ -6,7 +6,10 @@
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-logo-row">
-          <img src="assets/images/logo.png" alt="SRC Logo" class="footer-logo-img">
+          <picture>
+            <source srcset="assets/images/logo.webp" type="image/webp">
+            <img src="assets/images/logo.png" alt="SRC Logo" class="footer-logo-img">
+          </picture>
           <div>
             <div class="footer-school-name">Dr. Hilla Limann Technical University</div>
             <div class="footer-school-sub">Student Representative Council</div>
@@ -62,4 +65,4 @@
   </div>
 </footer>
 
-<script src="assets/js/email-subscription.js"></script>
+<script defer src="assets/js/email-subscription.js"></script>

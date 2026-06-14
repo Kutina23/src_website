@@ -99,6 +99,26 @@ class Complaints {
         return $this->db->update('complaints', $data, ['id' => $id]);
     }
 
+    public function blockComplaint($id, $reason) {
+        return $this->db->update('complaints', [
+            'is_blocked'  => true,
+            'block_reason' => $reason,
+            'updated_at'  => date('Y-m-d H:i:s')
+        ], ['id' => $id]);
+    }
+
+    public function unblockComplaint($id) {
+        return $this->db->update('complaints', [
+            'is_blocked'  => false,
+            'block_reason' => null,
+            'updated_at'  => date('Y-m-d H:i:s')
+        ], ['id' => $id]);
+    }
+
+    public function deleteComplaint($id) {
+        return $this->db->delete('complaints', ['id' => $id]);
+    }
+
     // ── Totals ────────────────────────────────────────────
 
     public function countAll() {

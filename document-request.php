@@ -51,11 +51,12 @@ if ($postStudentId === '' || $postFullName === '' || $postEmail === '' || $docTy
                 'document_type' => $docType,
                 'purpose'       => $purpose,
                 'remarks'       => $remarks !== '' ? $remarks : null,
-                'status'        => 'PENDING'
+                'status'        => 'PENDING',
+                'guest_student_id' => $postStudentId,
+                'guest_full_name'  => $postFullName,
+                'guest_email'      => $postEmail,
+                'guest_phone'      => $postPhone !== '' ? $postPhone : null
             ];
-            if ($userId) {
-                $insertData['user_id'] = $userId;
-            }
             db()->insert('document_requests', $insertData);
             $submitted = true;
             $studentId = $postStudentId;
@@ -207,8 +208,33 @@ if ($postStudentId === '' || $postFullName === '' || $postEmail === '' || $docTy
       </div>
     </form>
 
-    <!-- ── CONFIRMATION ── -->
-    <div class="confirm-section" id="step-confirm" style="display: <?php echo $submitted ? 'block' : 'none'; ?>;">
+    <!-- ── TOKEN POPUP MODAL ── -->
+    <div id="tokenModal" style="display:<?php echo $submitted ? 'flex' : 'none'; ?>;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:18px;max-width:440px;width:92%;box-shadow:0 30px 70px rgba(0,0,0,.3);text-align:center;padding:32px 28px 28px;">
+        <div style="width:60px;height:60px;border-radius:50%;background:rgba(34,197,94,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
+          <i class="bi bi-check-lg" style="font-size:28px;color:#22c55e;"></i>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:22px;margin:0 0 8px;color:#000;">Request Submitted</h3>
+        <p style="font-size:14px;color:#000;margin:0 0 20px;line-height:1.6;">
+          Your document request has been received. Save your reference number below to track progress.
+        </p>
+        <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Your Reference Number</div>
+          <div id="confirmTokenPopup" style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.04em;word-break:break-all;"><?php echo $submitted ? htmlspecialchars($refNum) : '—'; ?></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+          <button onclick="copyTokenPopup()" class="btn-submit" style="margin-bottom:0;min-width:160px;">
+            <i class="bi bi-clipboard"></i> Copy Reference
+          </button>
+          <button onclick="closeTokenPopup()" class="btn-outline" style="margin-bottom:0;min-width:140px;">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIRMATION (fallback, hidden when modal shown) ── -->
+    <div class="confirm-section" id="step-confirm" style="display:none;">
       <div class="confirm-icon"><i class="bi bi-check-lg"></i></div>
       <h2 class="confirm-title">Request<br>Submitted</h2>
       <p class="confirm-width">
@@ -235,12 +261,26 @@ function copyToken() {
     const token = document.getElementById('confirmToken').textContent;
     navigator.clipboard.writeText(token).then(() => {
         const btn = document.getElementById('copyTokenBtn');
-        const originalText = btn.innerHTML;
         btn.innerHTML = 'Copied! <i class="bi bi-check2"></i>';
-        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+        setTimeout(() => { btn.innerHTML = 'Copy Reference <i class="bi bi-clipboard"></i>'; }, 2000);
     }).catch(() => {
-        alert('Failed to copy. Please copy manually: ' + token);
+        alert('Copy failed. Please copy manually: ' + token);
     });
+}
+function copyTokenPopup() {
+    const token = document.getElementById('confirmTokenPopup').textContent;
+    const btn = event.target.closest('button');
+    const original = btn.innerHTML;
+    navigator.clipboard.writeText(token).then(() => {
+        btn.innerHTML = 'Copied! <i class="bi bi-check2"></i>';
+        setTimeout(() => { btn.innerHTML = original; }, 2000);
+    }).catch(() => {
+        alert('Copy failed. Please copy manually: ' + token);
+    });
+}
+function closeTokenPopup() {
+    document.getElementById('tokenModal').style.display = 'none';
+    document.getElementById('step-confirm').style.display = 'block';
 }
 </script>
 
