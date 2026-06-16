@@ -287,9 +287,22 @@ function sendNewsEmailNotification($news) {
 
     $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
     $baseUrl .= '://' . $_SERVER['HTTP_HOST'];
-    $newsUrl = rtrim($baseUrl, '/') . '/news-detail.php?id=' . $news['id'];
 
-    $subject = "📰 New News: " . $news['title'];
+    $category = strtoupper($news['category'] ?? 'NEWS');
+    if ($category === 'EVENT') {
+        $detailUrl = rtrim($baseUrl, '/') . '/events-calendar.php';
+        $subject = "📅 New Event: " . $news['title'];
+        $icon = '📅';
+    } elseif ($category === 'ANNOUNCEMENT') {
+        $detailUrl = rtrim($baseUrl, '/') . '/announcements.php';
+        $subject = "📢 Announcement: " . $news['title'];
+        $icon = '📢';
+    } else {
+        $detailUrl = rtrim($baseUrl, '/') . '/news-detail.php?id=' . $news['id'];
+        $subject = "📰 New " . ucfirst(strtolower($category)) . ": " . $news['title'];
+        $icon = '📰';
+    }
+
     $excerpt = substr($news['excerpt'] ?? $news['content'] ?? '', 0, 200);
     
     $body = "<div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>";
@@ -305,7 +318,7 @@ function sendNewsEmailNotification($news) {
     }
     
     $body .= "<p>" . nl2br(htmlspecialchars($excerpt)) . "</p>";
-    $body .= "<p><a href='{$newsUrl}' style='display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 4px;'>Read Full Article</a></p>";
+    $body .= "<p><a href='{$detailUrl}' style='display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 4px;'>View " . htmlspecialchars($category) . "</a></p>";
     $body .= "<hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>";
     $body .= "<p style='font-size: 12px; color: #999;'>You received this email because you subscribed to SRC announcements. ";
     $body .= "<a href='{UNSUBSCRIBE_LINK}' style='color: #3498db;'>Unsubscribe</a></p>";

@@ -129,7 +129,6 @@ function getHallMotto($hallName) {
          </div>
         <div class="member-details">
           <h3 class="member-name"><?php echo htmlspecialchars($searchResult['first_name'] . ' ' . $searchResult['last_name']); ?></h3>
-          <p class="member-index"><?php echo htmlspecialchars($searchResult['student_id']); ?></p>
           <div class="member-hall-badge" style="background: <?php echo $hallColors[$searchResult['hall_name']]['primary'] ?? 'var(--gold)'; ?>;">
             <?php echo strtoupper(htmlspecialchars($searchResult['hall_name'])); ?>
           </div>
@@ -266,13 +265,12 @@ function getHallMotto($hallName) {
           .then(data => {
             positionSuggestions();
             if (data.length > 0) {
-              suggestionsContainer.innerHTML = data.map(item => `
+suggestionsContainer.innerHTML = data.map(item => `
                 <div class="suggestion-item" data-student-id="${item.student_id}" data-name="${item.first_name} ${item.last_name}" data-hall="${item.hall_name}">
-                  <div class="suggestion-content">
-                    <span class="suggestion-name">${item.first_name} ${item.last_name}</span>
-                    <span class="suggestion-index">${item.student_id}</span>
-                    <span class="suggestion-hall">${item.hall_name}</span>
-                  </div>
+                    <div class="suggestion-content">
+                      <span class="suggestion-name">${item.first_name} ${item.last_name}</span>
+                      <span class="suggestion-hall">${item.hall_name}</span>
+                    </div>
                 </div>
               `).join('');
               

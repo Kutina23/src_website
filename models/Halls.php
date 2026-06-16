@@ -73,7 +73,7 @@ class Halls {
     }
 
     public function searchMember($query) {
-        $sql = "SELECT hm.*, u.first_name, u.last_name, u.email, u.student_id, h.name as hall_name, h.president_name, h.president_image
+        $sql = "SELECT hm.*, u.first_name, u.last_name, u.email, h.name as hall_name, h.president_name, h.president_image
                 FROM hall_members hm
                 JOIN users u ON hm.user_id = u.id
                 JOIN halls h ON hm.hall_id = h.id

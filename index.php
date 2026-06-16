@@ -105,10 +105,10 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_GH">
 <meta property="og:site_name" content="DHLTU SRC">
-<meta property="og:url" content="https://hltu.edu.gh/src/">
+<meta property="og:url" content="https://dhltu.edu.gh/src/">
 <meta property="og:title" content="DHLTU SRC — Student Representative Council">
 <meta property="og:description" content="Official website of the Student Representative Council at Dr. Hilla Limann Technical University. Championing student rights and fostering excellence.">
-<meta property="og:image" content="https://hltu.edu.gh/src/assets/images/og-image.jpg">
+<meta property="og:image" content="https://dhltu.edu.gh/src/assets/images/og-image.jpg">
 <meta property="og:image:alt" content="DHLTU SRC official website banner">
 
 <!-- Twitter -->
@@ -146,7 +146,7 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": "+233 (0)v 393-XXX-XXX",
-    "email": "src@hltu.edu.gh",
+    "email": "dhltusrc2026@gmail.com",
     "contactType": "customer service"
   },
   "sameAs": [
@@ -548,11 +548,11 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
         <div class="mockup-dot"></div>
         <div class="mockup-dot"></div>
         <div class="mockup-dot"></div>
-        <div class="mockup-url">src.hltu.edu.gh/dashboard</div>
+        <div class="mockup-url">src.dhltu.edu.gh/dashboard</div>
       </div>
       <div class="mockup-body">
         <div class="mockup-header">
-          <div class="mockup-title">SRC Dashboard — 2024/25</div>
+          <div class="mockup-title">SRC Dashboard — 2025/26</div>
           <div class="mockup-badge">Live</div>
         </div>
         <div class="mockup-cards">
@@ -880,24 +880,24 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
 
   <div class="reveal-right delay-2">
     <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:24px;">Send A Message</div>
-    <div class="contact-form">
+    <form class="contact-form" id="contactForm">
       <div class="form-row">
         <div class="form-field">
           <label>Full Name</label>
-          <input type="text" placeholder="Your full name">
+          <input type="text" name="name" placeholder="Your full name" required>
         </div>
         <div class="form-field">
           <label>Student ID</label>
-          <input type="text" placeholder="e.g. HLTU/22/0001">
+          <input type="text" name="student_id" placeholder="e.g. HLTU/22/0001">
         </div>
       </div>
       <div class="form-field">
         <label>Email Address</label>
-        <input type="email" placeholder="yourname@hltu.edu.gh">
+        <input type="email" name="email" placeholder="yourname@hltu.edu.gh" required>
       </div>
       <div class="form-field">
         <label>Subject / Category</label>
-        <select>
+        <select name="category" required>
           <option value="">Select a category</option>
           <option>Academic Affairs</option>
           <option>Welfare & Support</option>
@@ -909,10 +909,11 @@ $sessionLabel = $siteSettings['session'] ?? date('Y') . '/' . ((int)date('Y') + 
       </div>
       <div class="form-field">
         <label>Message</label>
-        <textarea placeholder="Describe your concern or message in detail..."></textarea>
+        <textarea name="message" placeholder="Describe your concern or message in detail..." rows="4" required></textarea>
       </div>
-      <button class="form-submit">Submit Message →</button>
-    </div>
+      <button type="submit" class="form-submit">Submit Message →</button>
+      <div id="contactFormResult" style="margin-top:12px;display:none;"></div>
+    </form>
   </div>
 </section>
 
@@ -1502,6 +1503,40 @@ positionCouncilCards();
                 startAutoSlide();
             });
         }
+    }
+
+    // ── Contact Form Submission
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('contactFormResult');
+            
+            try {
+                const response = await fetch('api/contact-submit.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.color = '#22c55e';
+                    resultDiv.textContent = result.message;
+                    this.reset();
+                } else {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.color = '#ef4444';
+                    resultDiv.textContent = result.message || 'Failed to send message';
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.style.color = '#ef4444';
+                resultDiv.textContent = 'Network error. Please try again.';
+            }
+        });
     }
 
     // ── Mobile Header Dropdown

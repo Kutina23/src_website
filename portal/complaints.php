@@ -332,6 +332,9 @@ foreach ($complaints as $c) {
                                         </td>
                                         <td><?php echo timeAgo($c["created_at"]); ?></td>
                                         <td>
+                                            <button type="button" class="btn btn-sm btn-outline" style="padding:4px 9px;" onclick="openDetail(<?php echo (int)$c['id']; ?>)" title="View / Update">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this complaint permanently?');">
                                                 <input type="hidden" name="action" value="delete_complaint">
                                                 <input type="hidden" name="complaint_id" value="<?php echo (int)$c['id']; ?>">
@@ -576,6 +579,10 @@ foreach ($complaints as $c) {
 
     function closeModal() {
         document.getElementById('detailModal').style.display = 'none';
+    }
+
+    function closeDetail() {
+        closeModal();
     }
 
     function openBlockModal(id) {

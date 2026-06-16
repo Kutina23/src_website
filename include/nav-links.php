@@ -305,22 +305,26 @@ class NavigationRBAC {
                     <i class="bi bi-check-square"></i>
                     <span>Attendance</span>
                 </a>
-            </div>
+</div>
             <?php endif; ?>
 
             <!-- News & Announcements -->
             <?php if ($this->can('can_manage_news')): ?>
-            <div class="nav-section">
-                <div class="nav-header">Communication</div>
-                <a href="<?php echo $this->basePath; ?>news-admin.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'news-admin.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-newspaper"></i>
-                    <span>News & Announcements</span>
-                </a>
-                <a href="<?php echo $this->basePath; ?>email-subscriptions.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'email-subscriptions.php' ? 'active' : ''; ?>">
-                    <i class="bi bi-envelope-at"></i>
-                    <span>Email Subscriptions</span>
-                </a>
-            </div>
+             <div class="nav-section">
+                 <div class="nav-header">Communication</div>
+                 <a href="<?php echo $this->basePath; ?>news-admin.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'news-admin.php' ? 'active' : ''; ?>">
+                     <i class="bi bi-newspaper"></i>
+                     <span>News & Announcements</span>
+                 </a>
+                 <a href="<?php echo $this->basePath; ?>email-subscriptions.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'email-subscriptions.php' ? 'active' : ''; ?>">
+                     <i class="bi bi-envelope-at"></i>
+                     <span>Email Subscriptions</span>
+                 </a>
+                 <a href="<?php echo $this->basePath; ?>contact-messages.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'contact-messages.php' ? 'active' : ''; ?>">
+                     <i class="bi bi-envelope-paper"></i>
+                     <span>Contact Messages</span>
+                 </a>
+             </div>
             <?php endif; ?>
 
             <!-- Leadership Media -->

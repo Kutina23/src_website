@@ -98,8 +98,13 @@ class EmailSubscription {
                 $config = getMailConfig();
                 $headers = [
                     'From' => $config['from_address'],
+                    'Sender' => !empty($config['username']) ? $config['username'] : $config['from_address'],
+                    'Reply-To' => $config['reply_to'],
+                    'MIME-Version' => '1.0',
+                    'X-Mailer' => 'DHLTU-SRC/1.0',
+                    'Precedence' => 'bulk',
+                    'List-Unsubscribe' => "<{$unsubscribeUrl}>",
                     'Content-Type' => $contentType === 'html' ? 'text/html; charset=UTF-8' : 'text/plain; charset=UTF-8',
-                    'Reply-To' => $config['reply_to']
                 ];
 
                 if (sendEmail($subscriber['email'], $subject, $emailBody, $headers)) {
@@ -155,8 +160,13 @@ class EmailSubscription {
                 $config = getMailConfig();
                 $headers = [
                     'From' => $config['from_address'],
+                    'Sender' => !empty($config['username']) ? $config['username'] : $config['from_address'],
+                    'Reply-To' => $config['reply_to'],
+                    'MIME-Version' => '1.0',
+                    'X-Mailer' => 'DHLTU-SRC/1.0',
+                    'Precedence' => 'bulk',
+                    'List-Unsubscribe' => "<{$unsubscribeUrl}>",
                     'Content-Type' => $contentType === 'html' ? 'text/html; charset=UTF-8' : 'text/plain; charset=UTF-8',
-                    'Reply-To' => $config['reply_to']
                 ];
 
                 if (sendEmail($email, $subject, $emailBody, $headers)) {

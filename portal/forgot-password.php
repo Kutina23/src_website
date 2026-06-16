@@ -37,13 +37,18 @@ if ($_POST) {
                 $subject = "Password Reset Request - DHLTU SRC Portal";
                 $body = "
                 <html>
-                <body>
-                    <h2>Password Reset Request</h2>
-                    <p>You have requested to reset your password for the DHLTU SRC Portal.</p>
-                    <p>Click the link below to reset your password (this link will expire in 1 hour):</p>
-                    <p><a href=\"{$resetLink}\">{$resetLink}</a></p>
-                    <p>If you did not request this, please ignore this email.</p>
-                    <p>This is an automated message, please do not reply.</p>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                    <h2 style='color: #0a1628;'>Password Reset Request</h2>
+                    <p>You have requested to reset your password for the <strong>DHLTU SRC Portal</strong>.</p>
+                    <p>Click the button below to reset your password (this link will expire in <strong>1 hour</strong>):</p>
+                    <p style='margin: 20px 0;'>
+                        <a href=\"{$resetLink}\" style='display: inline-block; padding: 12px 24px; background-color: #c9a84c; color: #0a1628; text-decoration: none; border-radius: 6px; font-weight: 600;'>Reset Password</a>
+                    </p>
+                    <p style='font-size: 13px; color: #666;'>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p style='font-size: 12px; color: #888; word-break: break-all;'>{$resetLink}</p>
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+                    <p style='font-size: 12px; color: #999;'>If you did not request this password reset, please ignore this email — your account is secure.</p>
+                    <p style='font-size: 12px; color: #999;'>DHLTU Student Representative Council</p>
                 </body>
                 </html>
                 ";
@@ -54,7 +59,10 @@ if ($_POST) {
                     'Reply-To' => $mailConfig['reply_to']
                 ];
                 
-                sendEmail($email, $subject, $body, $headers);
+                $emailSent = sendEmail($email, $subject, $body, $headers);
+                if (!$emailSent) {
+                    error_log("Failed to send password reset email to: $email");
+                }
                 
                 $_SESSION['forgot_success'] = 'If your email is registered, you will receive a password reset link shortly.';
             } else {

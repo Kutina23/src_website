@@ -58,6 +58,38 @@ function getAppBaseUrl() {
     return $url ? rtrim($url, '/') : '';
 }
 
+function smtpSend($smtp, $command) {
+    fwrite($smtp, $command . "\r\n");
+}
+
+function smtpReadLine($smtp) {
+    $line = @fgets($smtp);
+    if ($line === false) {
+        error_log("SMTP read failed (command: " . trim($command ?? '') . ")");
+        return null;
+    }
+    return rtrim($line, "\r\n");
+}
+
+function smtpReadResponse($smtp, $commandLabel) {
+    $response = '';
+    $start = time();
+    $timeout = 15;
+    while ((time() - $start) < $timeout) {
+        $line = smtpReadLine($smtp);
+        if ($line === null) {
+            error_log("SMTP: Connection closed waiting for response after: $commandLabel");
+            return null;
+        }
+        $response .= $line;
+        $code = (int)substr($line, 0, 3);
+        if (!isset($line[3]) || $line[3] !== '-') {
+            break;
+        }
+    }
+    return $response;
+}
+
 function sendEmailSMTP($to, $subject, $body, $headers = []) {
     $config = getMailConfig();
     
@@ -66,10 +98,17 @@ function sendEmailSMTP($to, $subject, $body, $headers = []) {
         return false;
     }
     
+    $envelopeFrom = !empty($config['username']) ? $config['username'] : $config['from_address'];
+    
     $defaultHeaders = [
         'From' => $config['from_address'],
+        'Sender' => $envelopeFrom,
+        'Reply-To' => $config['reply_to'],
+        'MIME-Version' => '1.0',
+        'X-Mailer' => 'PHP/' . phpversion(),
+        'Date' => date('D, d M Y H:i:s T'),
+        'Message-ID' => '<' . uniqid() . '.' . hash('sha256', $to . $subject . microtime()) . '@gmail.com>',
         'Content-Type' => 'text/html; charset=UTF-8',
-        'Reply-To' => $config['reply_to']
     ];
     $headers = array_merge($defaultHeaders, $headers);
     
@@ -80,6 +119,7 @@ function sendEmailSMTP($to, $subject, $body, $headers = []) {
     
     $host = $config['host'];
     $port = $config['port'];
+    $encryption = $config['encryption'];
     
     $smtp = @fsockopen($host, $port, $errno, $errstr, 15);
     if (!$smtp) {
@@ -87,77 +127,128 @@ function sendEmailSMTP($to, $subject, $body, $headers = []) {
         return false;
     }
     
-    stream_set_timeout($smtp, 15);
+    stream_set_blocking($smtp, 1);
+    stream_set_timeout($smtp, 30);
     
-    $response = @fgets($smtp);
-    if ($response === false || substr($response, 0, 3) !== '220') {
+    // Read initial banner
+    $line = smtpReadLine($smtp);
+    if ($line === null) {
+        error_log("SMTP: No initial banner from server");
         @fclose($smtp);
-        error_log('SMTP server not responding');
+        return false;
+    }
+    $bannerCode = (int)substr($line, 0, 3);
+    if ($bannerCode !== 220) {
+        error_log("SMTP: Unexpected banner: {$line}");
+        @fclose($smtp);
         return false;
     }
     
-    @fwrite($smtp, "EHLO localhost\r\n");
-    $response = '';
-    while (($line = @fgets($smtp)) !== false && isset($line[3]) && $line[3] == '-') {
-        $response .= $line;
+    // EHLO
+    smtpSend($smtp, "EHLO localhost");
+    $ehloResponse = smtpReadResponse($smtp, 'EHLO');
+    if (!$ehloResponse) {
+        error_log('SMTP EHLO failed');
+        @fclose($smtp);
+        return false;
     }
     
-    if ($config['encryption'] === 'tls') {
-        @fwrite($smtp, "STARTTLS\r\n");
-        $starttlsResponse = @fgets($smtp);
-        if ($starttlsResponse === false || substr($starttlsResponse, 0, 3) !== '220') {
+    // STARTTLS
+    if ($encryption === 'tls') {
+        smtpSend($smtp, "STARTTLS");
+        $starttlsLine = smtpReadLine($smtp);
+        if ($starttlsLine === null || (int)substr($starttlsLine, 0, 3) !== 220) {
+            error_log('SMTP STARTTLS failed: ' . trim($starttlsLine));
             @fclose($smtp);
-            error_log('SMTP STARTTLS failed');
             return false;
         }
-        $tlsOk = @stream_socket_enable_crypto($smtp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        
+        $tlsOk = stream_socket_enable_crypto($smtp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
         if (!$tlsOk) {
+            error_log('SMTP TLS handshake failed after STARTTLS');
             @fclose($smtp);
-            error_log('SMTP TLS handshake failed');
             return false;
         }
-        @fwrite($smtp, "EHLO localhost\r\n");
-        $line = '';
-        while (($line = @fgets($smtp)) !== false && strlen($line) > 3 && $line[3] == '-') {}
+        
+        smtpSend($smtp, "EHLO localhost");
+        $ehloResponse = smtpReadResponse($smtp, 'EHLO (post-TLS)');
+        if (!$ehloResponse) {
+            error_log('SMTP EHLO after TLS failed');
+            @fclose($smtp);
+            return false;
+        }
     }
     
-    @fwrite($smtp, "AUTH LOGIN\r\n");
-    $authResponse = @fgets($smtp);
-    if ($authResponse === false) {
+    // AUTH LOGIN
+    smtpSend($smtp, "AUTH LOGIN");
+    $authLine = smtpReadLine($smtp);
+    if ($authLine === null || (int)substr($authLine, 0, 3) !== 334) {
+        error_log('SMTP AUTH LOGIN not accepted: ' . trim($authLine));
         @fclose($smtp);
-        error_log('SMTP AUTH not accepted');
         return false;
     }
     
-    @fwrite($smtp, base64_encode($config['username']) . "\r\n");
-    @fgets($smtp);
-    @fwrite($smtp, base64_encode($config['password']) . "\r\n");
-    $authResponse = @fgets($smtp);
-    
-    if ($authResponse === false || substr($authResponse, 0, 3) !== '235') {
+    smtpSend($smtp, base64_encode($config['username']));
+    $userLine = smtpReadLine($smtp);
+    if ($userLine === null || (int)substr($userLine, 0, 3) !== 334) {
+        error_log('SMTP username not accepted: ' . trim($userLine));
         @fclose($smtp);
-        error_log('SMTP authentication failed');
         return false;
     }
     
-    @fwrite($smtp, "MAIL FROM: <{$config['from_address']}>\r\n");
-    @fgets($smtp);
-    @fwrite($smtp, "RCPT TO: <{$to}>\r\n");
-    @fgets($smtp);
-    @fwrite($smtp, "DATA\r\n");
-    @fgets($smtp);
+    smtpSend($smtp, base64_encode($config['password']));
+    $passLine = smtpReadLine($smtp);
+    if ($passLine === null || (int)substr($passLine, 0, 3) !== 235) {
+        error_log('SMTP authentication failed: ' . trim($passLine));
+        @fclose($smtp);
+        return false;
+    }
     
+    // MAIL FROM — must match the authenticated Gmail account or it will be silently dropped
+    $envelopeFrom = !empty($config['username']) ? $config['username'] : $config['from_address'];
+    smtpSend($smtp, "MAIL FROM: <{$envelopeFrom}>");
+    $mailLine = smtpReadLine($smtp);
+    if ($mailLine === null || (int)substr($mailLine, 0, 3) !== 250) {
+        error_log('SMTP MAIL FROM rejected: ' . trim($mailLine));
+        @fclose($smtp);
+        return false;
+    }
+    
+    // RCPT TO
+    smtpSend($smtp, "RCPT TO: <{$to}>");
+    $rcptLine = smtpReadLine($smtp);
+    if ($rcptLine === null || (int)substr($rcptLine, 0, 3) !== 250) {
+        error_log('SMTP RCPT TO rejected: ' . trim($rcptLine));
+        @fclose($smtp);
+        return false;
+    }
+    
+    // DATA
+    smtpSend($smtp, "DATA");
+    $dataLine = smtpReadLine($smtp);
+    if ($dataLine === null || (int)substr($dataLine, 0, 3) !== 354) {
+        error_log('SMTP DATA not accepted: ' . trim($dataLine));
+        @fclose($smtp);
+        return false;
+    }
+    
+    // Message
     $message = "To: {$to}\r\n";
     $message .= "Subject: {$subject}\r\n";
     $message .= $headerString;
     $message .= "\r\n{$body}\r\n.";
     
-    @fwrite($smtp, $message);
-    $dataResponse = @fgets($smtp);
-    @fwrite($smtp, "QUIT\r\n");
+    smtpSend($smtp, $message);
+    $finalLine = smtpReadLine($smtp);
+    
     @fclose($smtp);
     
-    return $dataResponse !== false && substr($dataResponse, 0, 3) === '250';
+    if ($finalLine === null || (int)substr($finalLine, 0, 3) !== 250) {
+        error_log('SMTP message rejected: ' . trim($finalLine));
+        return false;
+    }
+    
+    return true;
 }
 
 function sendEmail($to, $subject, $body, $headers = []) {

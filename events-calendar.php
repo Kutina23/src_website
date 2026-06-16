@@ -703,7 +703,7 @@ function totalEventCount() {
         <?php endforeach; ?>
       </div>
 
-      <a href="#" class="add-event-btn" onclick="return false;">+ Submit an Event</a>
+      <a href="#" class="add-event-btn" id="openEventModal">+ Submit an Event</a>
     </div>
   </div>
 
@@ -802,6 +802,44 @@ function totalEventCount() {
   
 
     <?php include 'include/footer.php'; ?>
+
+    <script>
+    (function() {
+      const modal = document.getElementById('submitEventModal');
+      const openBtn = document.getElementById('openEventModal');
+      const closeBtn = document.getElementById('closeEventModal');
+      if (!modal || !openBtn || !closeBtn) return;
+
+      function openModal() {
+        modal.classList.add('open');
+        const firstInput = modal.querySelector('input, textarea');
+        if (firstInput) setTimeout(() => firstInput.focus(), 50);
+      }
+
+      function closeModal() {
+        modal.classList.remove('open');
+      }
+
+      openBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openModal();
+      });
+
+      closeBtn.addEventListener('click', closeModal);
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+      });
+
+      document.getElementById('submitEventForm')?.addEventListener('submit', function() {
+        setTimeout(closeModal, 300);
+      });
+    })();
+    </script>
 
     <!-- Success toast for submitted events -->
     <?php if ($submitSuccess): ?>
